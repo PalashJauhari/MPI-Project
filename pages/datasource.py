@@ -1,5 +1,7 @@
+import pandas as pd
+import numpy as np
 import dash
-from dash import html, dcc
+from dash import html, dcc, dash_table
 
 dash.register_page(__name__)
 
@@ -35,9 +37,16 @@ def datasourceLayout():
                                  data utilized in this analysis for the state-wide Multidimensional \
                                  Poverty Index study.")],className="datasource_content")
 
-    heading_table = html.Div([html.H4(['Data Extraction'])],className="datasource_heading")
-    content_table = html.Div([],id = "datasource_table")
+    df = pd.read_excel("Data/New Microsoft Excel Worksheet.xlsx")
+    data_table = dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns],
+                                       style_table={'overflowX': 'auto'},
+                                       style_cell={'height': 'auto','minWidth': '180px', 
+                                                    'width': '180px', 'maxWidth': '180px',
+                                                    'whiteSpace': 'normal'})
+
     
+    heading_table = html.Div([html.H4(['NDAP Data Source'])],className="datasource_heading")
+    content_table = html.Div([data_table],id = "datasource_table")
     
     heading3 = html.Div([html.H4(['Data Extraction'])],className="datasource_heading")
     content3 = html.Div([html.P("All data available on NDAP is extracted using APIs.")],className="datasource_content")

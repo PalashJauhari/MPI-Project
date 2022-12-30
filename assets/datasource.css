@@ -16,3 +16,10 @@
     border-radius: 12px;
     
 }
+
+#datasource_table{
+    margin:10px 10px 0px 10px;
+    height: 400px;
+    border-radius: 12px;
+    overflow-y: scroll;
+}
