@@ -14,12 +14,33 @@
     font-family: "Calibri";
     font-size: 20px;
     border-radius: 12px;
-    height:500px;
+    height:400px;
     display: flex;
+    text-align: justify;
        
 }
 
 #img1{
     width:100px;
     height:100px;
+}
+.about_content_2{
+
+    margin:0px 10px 0px 10px;
+    font-family: "Calibri";
+    font-size: 20px;
+    border-radius: 12px;
+    display: flex;
+    text-align: justify;
+       
+}
+.about_content_3{
+
+    margin:0px 10px 0px 10px;
+    font-family: "Calibri";
+    font-size: 20px;
+    border-radius: 12px;
+    display: flex;
+    text-align: justify;
+       
 }
