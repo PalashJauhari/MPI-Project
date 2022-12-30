@@ -50,7 +50,7 @@ def datasourceLayout():
                                                     'color': 'white',"font-weight":"bolder"})
 
     
-    heading_table = html.Div([html.H4(['NDAP Data Source'],style={"font-weight":"bold","margin-left":"5px"})],className="datasource_heading")
+    heading_table = html.Div([html.H4(['NDAP Data'],style={"font-weight":"bold","margin-left":"5px"})],className="datasource_heading")
     content_table = html.Div([data_table],id = "datasource_table")
     
     heading3 = html.Div([html.H4(['Data Extraction'],style={"font-weight":"bold","margin-left":"5px"})],className="datasource_heading")

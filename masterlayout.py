@@ -13,7 +13,7 @@ def masterLayout():
     side_navigation_bar = dbc.Nav(
             [
                 dbc.NavLink(
-                    [html.I(className="fa-solid fa-house"), html.Span("About MPI",className="sidebar_span")],
+                    [html.I(className="fa-solid fa-house"), html.Span("Global MPI",className="sidebar_span")],
                     href="/about",
                     active="exact",
                 ),
