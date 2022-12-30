@@ -8,7 +8,6 @@ dash.register_page(__name__)
 
 def datasourceLayout():
 
-
     heading1 = html.Div([html.H4(['What is NDAP?'],style={"font-weight":"bold","margin-left":"5px"})],className="datasource_heading")
     content1 = html.Div([html.P("The National Data and Analytics Platform (or NDAP) is NITI Aayog’s flagship \
                        initiative to improve access and use of government data. NDAP is a user-friendly\
@@ -37,7 +36,7 @@ def datasourceLayout():
                                  data utilized in this analysis for the state-wide Multidimensional \
                                  Poverty Index study.")],className="datasource_content")
 
-    df = pd.read_excel("Data/New Microsoft Excel Worksheet.xlsx")
+    df = pd.read_excel("Data/MPI_Data_Source.xlsx")
     data_table = dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns],
                                        fixed_rows={'headers': True},
                                        style_table={'overflowX': 'auto'},

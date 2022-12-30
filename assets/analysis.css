@@ -1,0 +1,72 @@
+#analysis_card_box_both{
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.card-title{
+    padding:0px;
+    margin: 0px;
+    font-size: small;
+}
+.card-text{
+    padding:0px;
+    margin: 0px;
+    font-size: small;
+}
+
+.card_body{
+    width: 500px;
+    margin:5px 10px 5px 10px;
+    font-weight: bold;
+}
+.card-body{
+    padding: 0px;
+    text-align: center;
+    font-weight: bold;
+}
+.rank-text{
+    padding: 0px;
+    text-align:right;
+    font-weight: bold;
+    margin-top: -15px;
+    margin-right: 5px;
+
+}
+
+#analysis_card_box_1{
+
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 60px;
+}
+#analysis_card_box_2{
+
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 60px;
+}
+
+#analysis_all_state_box{
+
+    display: inline-block;
+    border: 2px solid black;
+    width: 50%;
+    height: 580px;
+}
+
+#analysis_state_wise_box{
+
+    display: inline-block;
+    border: 2px solid black;
+    width: 50%;
+    height: 580px;
+}
+
+#analysis_all_states_graph_div{
+    height:580px;
+}
