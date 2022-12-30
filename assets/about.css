@@ -1,0 +1,25 @@
+.about_heading{
+
+    margin:10px 10px 0px 10px;
+    font-family: "Calibri";
+    font-size: 22px;
+    border-radius: 6px;
+    background-color: #bdb8eb;
+    font-weight: bold;
+
+}
+.about_content_1{
+
+    margin:0px 10px 0px 10px;
+    font-family: "Calibri";
+    font-size: 20px;
+    border-radius: 12px;
+    height:500px;
+    display: flex;
+       
+}
+
+#img1{
+    width:100px;
+    height:100px;
+}

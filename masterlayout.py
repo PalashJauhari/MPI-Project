@@ -8,7 +8,7 @@ from dash import Input, Output, dcc, html
 def masterLayout():
     
     sidebar_heading = html.Div([html.Img(src="assets\Application_Icon.PNG", style={"width": "3rem","border-radius":"50%"}),
-                            html.H2("MPI")],className="sidebar-header")
+                                html.H2("MPI")],className="sidebar-header")
     
     side_navigation_bar = dbc.Nav(
             [
