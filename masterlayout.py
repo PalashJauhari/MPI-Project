@@ -34,7 +34,7 @@ def masterLayout():
         )
     
     sidebar = html.Div([sidebar_heading,html.Hr(),side_navigation_bar ],className="sidebar")
-    mpi_heading = html.Div([html.H4("Multidimensional Povert Index of Indian States")],id="mpi_heading")
+    mpi_heading = html.Div([html.H4("Multidimensional Poverty Index of Indian States",style={"margin-top":"10px"})],id="mpi_heading")
     master_layout = html.Div([sidebar,mpi_heading,dash.page_container],id = "master_layout")
 
     return master_layout

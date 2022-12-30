@@ -89,7 +89,7 @@
 #mpi_heading{
 
   margin-left: 80px;
-  border: 2px solid black;
+  border: 0px solid black;
   height:46px;
   display:flex;
   align-items: center;
@@ -97,10 +97,11 @@
   text-align: center;
   font-weight: bolder;
   font-size: xx-large;
+  
 }
 /* This is default id name of page content , taken from inspect in web*/
 #_pages_content{
   height: 93vh;
-  border: 2px solid black;
+  border: 0px solid black;
   margin-left: 80px;
 }
