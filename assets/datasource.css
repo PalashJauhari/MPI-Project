@@ -1,0 +1,18 @@
+.datasource_heading{
+
+    margin:10px 10px 0px 10px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: medium;
+    background-color: rgb(243, 243, 243);
+    border-radius: 12px;
+}
+
+.datasource_content{
+
+    margin:0px 10px 0px 10px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: medium;
+    background-color: rgb(243, 243, 243);;
+    border-radius: 12px;
+    
+}
