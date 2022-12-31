@@ -25,5 +25,13 @@ def extractData():
     colnames = [i for i in df.columns if "Contribution_" in i]
     df["MPI Index"] = df[colnames].sum(axis=1)
 
+    # convert contributions to percentage contributions
+    colnames = [i for i in df.columns if "Contribution_" in i]
+
+    pct_contribution = 100*df[colnames].values/df[colnames].sum(axis=1).values.reshape(-1,1)
+    df_pct = pd.DataFrame(pct_contribution ,columns=[i.replace("Contribution","Pct") for i in colnames])
+
+    df = pd.concat([df,df_pct],axis=1)
+
     return df
 

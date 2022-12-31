@@ -56,7 +56,7 @@
     display: inline-block;
     border: 2px solid black;
     width: 50%;
-    height: 580px;
+    height: 490px;
 }
 
 #analysis_state_wise_box{
@@ -64,9 +64,15 @@
     display: inline-block;
     border: 2px solid black;
     width: 50%;
-    height: 580px;
+    height: 490px;
 }
 
 #analysis_all_states_graph_div{
-    height:580px;
+    overflow-y: scroll;
+}
+#analysis_all_state_box{
+    overflow-y: scroll;
+}
+#analysis_state_wise_box{
+    overflow-y: scroll;
 }

@@ -56,20 +56,31 @@ def analysisLayout(inputDict):
                                            id="analysis_all_states_metric_dropdown",
                                            maxHeight=175)
 
+    
+    indicator_dict = {'Pct_Illiterate population (%)':"Illiteracy",
+                     'Pct_Deprived_Cooking_Fuel (%)':"Deprived Cooking Fuel", 
+                     'Pct_Deprived_Sanitisation (%)':"Deprived Sanitisation", 
+                     'Pct_Deprived_Drinking_Water (%)':"Deprived Drinking Water", 
+                     'Pct_Deprived_Electricity (%)':"Deprived Electricity", 
+                     'Pct_Deprived_House (%)':"Deprived House", 
+                     'Pct_Deprived_Assets (%)':"Deprived Assets", 
+                     'Pct_Infant Mortality Rate (%)':"Infant Mortality Rate", 
+                     'Pct_Attendance Ratio':"Attendance Ratio", 
+                     'Pct_Adults BMI Below Normal':"Deprived Nutrition"}
 
     if inputDict["value_analysis_all_states_metric_dropdown"]=='distribution_indicators':
         
         df = df.sort_values("MPI Index",ascending=True)
-        colnames = [i for i in df.columns if "Contribution_" in i]
+        colnames = [i for i in df.columns if "Pct_" in i]
 
         fig = go.Figure()
         for i in colnames:
             x = list(df[i].values)
             y = list(df["State"].values)
-            text = [str(np.round(i,4)) for i in list(df[i].values)]
+            text = [str(np.round(i,0)) for i in list(df[i].values)]
             fig.add_trace(go.Bar(x=x,y=y,orientation='h',name=indicator_dict[i],text=text,textposition='inside'))
 
-        fig.update_layout(barmode='relative',margin=dict(l=0, r=0, t=25, b=0),height=580)
+        fig.update_layout(barmode='relative',margin=dict(l=0, r=0, t=25, b=0),height=1000)
 
     graph_figure = dcc.Graph(figure=fig)  
     graph_div = html.Div([graph_figure],id="analysis_all_states_graph_div")
@@ -77,7 +88,7 @@ def analysisLayout(inputDict):
 
 
     #state wise
-    state_wise_box = html.Div([],id="analysis_state_wise_box")
+    state_wise_box = html.Div([metric_dropdown,graph_div  ],id="analysis_state_wise_box")
 
     layout = html.Div([card_box_both,all_state_box,state_wise_box],id='analytics-output')
 
