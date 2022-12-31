@@ -57,22 +57,38 @@
     border: 2px solid black;
     width: 50%;
     height: 490px;
+    margin-left: 10px;
 }
-
-#analysis_state_wise_box{
-
-    display: inline-block;
-    border: 2px solid black;
-    width: 50%;
-    height: 490px;
+#analysis_all_states_metric_dropdown{
+    font-weight: bold;
 }
-
+#analysis_radio-buttons{
+    display: flex;
+    justify-content: space-evenly;
+}
 #analysis_all_states_graph_div{
     overflow-y: scroll;
 }
 #analysis_all_state_box{
     overflow-y: scroll;
 }
+
+#analysis_state_wise_box{
+
+    display: inline-block;
+    border: 2px solid black;
+    width: 48%;
+    height: 490px;
+}
+#analysis_selected_state_metric{
+    border: 2px solid black;
+    display: flex;
+    justify-content: space-evenly;
+    font-weight: bold;
+    height: 36px;
+    align-items: center;
+}
+
 #analysis_state_wise_box{
     overflow-y: scroll;
 }
