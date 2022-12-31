@@ -16,13 +16,13 @@ def get_metric_rank(dff,statename):
     colnames.append("MPI Index")
     for i in colnames:
         if i != "Orignal_Attendance Ratio":
-            dff1 = dff.sort_values(i,ascending=True)
+            dff1 = dff.sort_values(i,ascending=False)
         else:
             dff1 = dff.sort_values(i,ascending=False)
         
         dff1 = dff1.reset_index().drop(columns="index")  
         dff_state = dff1[dff1["State"]==statename]
-        rank_dict[i.replace("Orignal_","")] = [np.round(dff_state[i].values[0],3),dff_state.index[0] + 1]
+        rank_dict[i.replace("Orignal_","")] = [np.round(dff_state[i].values[0],1),dff_state.index[0] + 1]
     
     return rank_dict 
     
@@ -44,7 +44,8 @@ def analysisLayout(inputDict):
                                              {"label":"Deprived Drinking Water","value":'Orignal_Deprived_Drinking_Water (%)'},
                                              {"label":"Deprived Assets","value":'Orignal_Deprived_Assets (%)'},
                                              {"label":"Infant Mortality Rate","value":'Orignal_Infant Mortality Rate (%)'},
-                                             {"label":"Deprived Nutrition","value":'Orignal_Adults BMI Below Normal'}],
+                                             {"label":"Deprived Nutrition","value":'Orignal_Adults BMI Below Normal'},
+                                             {"label":"Attendance Ratio","value":'Orignal_Attendance Ratio'}],
                                            value=inputDict["value_analysis_all_states_metric_dropdown"],
                                            id="analysis_all_states_metric_dropdown",
                                            maxHeight=175)
@@ -79,7 +80,7 @@ def analysisLayout(inputDict):
         fig = go.Figure()
         fig.add_trace(go.Bar(x=x,y=y,orientation='h',name="MPI Index",text=text,textposition='inside',
                       marker=dict(color=x,colorscale='turbo')))
-        fig.update_layout(margin=dict(l=0, r=0, t=25, b=0),height=1000)
+        fig.update_layout(margin=dict(l=0, r=0, t=25, b=0),height=800)
     
     if inputDict["value_analysis_all_states_metric_dropdown"] in ['Orignal_Illiterate population (%)',
                                                                   'Orignal_Deprived_Cooking_Fuel (%)',
@@ -90,7 +91,8 @@ def analysisLayout(inputDict):
                                                                   'Orignal_Deprived_Assets (%)',
                                                                   'Orignal_Infant Mortality Rate (%)',
                                                                   'Orignal_Attendance Ratio', 
-                                                                  'Orignal_Adults BMI Below Normal']:
+                                                                  'Orignal_Adults BMI Below Normal',
+                                                                  "Orignal_Attendance Ratio"]:
         
         
         var1 = inputDict["value_analysis_all_states_metric_dropdown"]
@@ -104,7 +106,7 @@ def analysisLayout(inputDict):
         fig = go.Figure()
         fig.add_trace(go.Bar(x=x,y=y,orientation='h',name=var1,text=text,textposition='inside',
                       marker=dict(color=x,colorscale='turbo')))
-        fig.update_layout(margin=dict(l=0, r=0, t=25, b=0),height=1000)
+        fig.update_layout(margin=dict(l=0, r=0, t=25, b=0),height=800)
 
     if inputDict["value_analysis_all_states_metric_dropdown"]=='distribution_indicators':
         
@@ -165,7 +167,7 @@ def analysisLayout(inputDict):
         metric_rank = selected_state_metric_rank_dict[colnames[i].replace("Contribution_","")][1]
 
         card_temp = dbc.Card(dbc.CardBody([html.P(indicator, className="card-title"),
-                             html.P(metric_score, className="card-text"),
+                             html.P(str(metric_score)+" %", className="card-text"),
                              html.P("{}/26".format( metric_rank), className="rank-text")]),className="card_body")
         card_row_1.append(card_temp)
     
@@ -177,7 +179,7 @@ def analysisLayout(inputDict):
         metric_rank = selected_state_metric_rank_dict[colnames[i].replace("Contribution_","")][1]
 
         card_temp = dbc.Card(dbc.CardBody([html.P(indicator, className="card-title"),
-                             html.P(metric_score, className="card-text"),
+                             html.P(str(metric_score)+" %", className="card-text"),
                              html.P("{}/26".format( metric_rank), className="rank-text")]),className="card_body")
         card_row_2.append(card_temp)
     
@@ -199,7 +201,7 @@ def analysisLayout(inputDict):
     fig_state = go.Figure()
     fig_state .add_trace(go.Bar(x=y_contribution,y=labels,orientation="h",name=selected_state,textposition='inside'))
     fig_state .add_trace(go.Bar(x=y_india_mean_contribution ,y=labels,orientation="h",name="Indian Average",textposition='inside'))
-    fig_state.update_layout(margin=dict(l=0, r=0, t=0, b=0),width=500,height=1000,
+    fig_state.update_layout(margin=dict(l=0, r=0, t=25, b=0),width=575,height=1000,
                             legend=dict(x=0,y=1.025,orientation="h",bgcolor='rgba(255, 255, 255, 0)'))
     graph_figure_state = dcc.Graph(figure=fig_state)
     
@@ -207,7 +209,10 @@ def analysisLayout(inputDict):
                                       html.Div([selected_state_mpi]),
                                       html.Div([selected_state_mpi_rank])],id="analysis_selected_state_metric")
 
-    state_wise_box = html.Div([selected_state_metric ,graph_figure_state],id="analysis_state_wise_box")
+    
+    
+    graph_figure_state_heading = html.P("Indicator Contribution in MPI",id="graph_figure_state_heading")
+    state_wise_box = html.Div([selected_state_metric,graph_figure_state_heading,graph_figure_state],id="analysis_state_wise_box")
     # final layout
     layout = html.Div([card_box_both,all_state_box,state_wise_box],id='analytics-output')
 
