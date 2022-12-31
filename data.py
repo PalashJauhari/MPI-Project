@@ -8,13 +8,12 @@ def extractData():
     # 100 is divided because BMI columns are in percentage , however other columns are fraction
     df["Adults BMI Below Normal"]= (df["Men BMI Below Normal (%)"] + df["Women BMI Below Normal (%)"])/(2*100.0)
     df["Infant Mortality Rate (%)"] = df["Infant Mortality Rate (%)"]/100.0
-
     df = df.drop(columns=["Men BMI Below Normal (%)","Women BMI Below Normal (%)"])
 
     # normalise each columns
     colnames = df.drop(columns="State").columns
     for i in colnames:
-        df["Orignal_".format(i)] = df[i]
+        df["Orignal_{}".format(i)] = 100*df[i].copy()
         df[i] = (df[i] - np.min(df[i]))/(np.max(df[i])-np.min(df[i]))
 
     # from this point onwards "Orignal_" represents raw values , rest all are normalised.
@@ -40,6 +39,6 @@ def extractData():
 
     # concatnat
     df = pd.concat([df,df_pct],axis=1)
-
+    #df.to_csv("Final_Processed.csv",index=False)
     return df
 

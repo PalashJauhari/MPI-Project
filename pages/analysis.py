@@ -11,58 +11,40 @@ dash.register_page(__name__)
 def get_metric_rank(dff,statename):
 
     rank_dict = {}
-    dff = dff.reset_index.drop(columns="index")
-    colnames = [i for i in dff.columns if "Actual" in i]
+    dff = dff.reset_index().drop(columns="index")
+    colnames = [i for i in dff.columns if "Orignal_" in i]
+    colnames.append("MPI Index")
     for i in colnames:
-        dff1 = dff.sort_value(i,ascending=True)
+        if i != "Orignal_Attendance Ratio":
+            dff1 = dff.sort_values(i,ascending=True)
+        else:
+            dff1 = dff.sort_values(i,ascending=False)
+        
+        dff1 = dff1.reset_index().drop(columns="index")  
         dff_state = dff1[dff1["State"]==statename]
-        rank_dict[i.replace("Actual_","")] = dff_state.index[0] + 1
-
-
+        rank_dict[i.replace("Orignal_","")] = [np.round(dff_state[i].values[0],3),dff_state.index[0] + 1]
+    
+    return rank_dict 
+    
 
 def analysisLayout(inputDict):
 
     df = extractData()
 
-
-    # summary cards layout
-    indicator_dict = {'Contribution_Illiterate population (%)':"Illiteracy",
-                     'Contribution_Deprived_Cooking_Fuel (%)':"Deprived Cooking Fuel", 
-                     'Contribution_Deprived_Sanitisation (%)':"Deprived Sanitisation", 
-                     'Contribution_Deprived_Drinking_Water (%)':"Deprived Drinking Water", 
-                     'Contribution_Deprived_Electricity (%)':"Deprived Electricity", 
-                     'Contribution_Deprived_House (%)':"Deprived House", 
-                     'Contribution_Deprived_Assets (%)':"Deprived Assets", 
-                     'Contribution_Infant Mortality Rate (%)':"Infant Mortality Rate", 
-                     'Contribution_Attendance Ratio':"Attendance Ratio", 
-                     'Contribution_Adults BMI Below Normal':"Deprived Nutrition"}
-    colnames = [i for i in df.columns if "Contribution_" in i]
-    #print(colnames)
-    card_row_1 = []
-    for i in range(5):
-        indicator = indicator_dict[colnames[i]]
-        card_temp = dbc.Card(dbc.CardBody([html.P(indicator, className="card-title"),
-                             html.P("0.5", className="card-text"),
-                             html.P("14/28", className="rank-text")]),className="card_body")
-        card_row_1.append(card_temp)
-    
-    card_row_2 = []
-    for i in range(5,len(colnames)):
-        indicator = indicator_dict[colnames[i]]
-        card_temp = dbc.Card(dbc.CardBody([html.P(indicator, className="card-title"),
-                             html.P("0.5", className="card-text"),
-                             html.P("14/28", className="rank-text")]),className="card_body")
-        card_row_2.append(card_temp)
-    
-    card_box_1 = html.Div(card_row_1,id="analysis_card_box_1")
-    card_box_2 = html.Div(card_row_2,id="analysis_card_box_2")
-    card_box_both = html.Div([card_box_1,card_box_2],id="analysis_card_box_both")
-
     # input dropdown
 
     metric_dropdown = dcc.Dropdown(options=[{"label":"Overall MPI Index of States","value":"overall_mpi_index"},
                                             {"label":"Distribution of Contribution of Indicators","value":"distribution_indicators"},
-                                            ],
+                                             {"label":"Cluster Analysis","value":"cluster_analysis"},
+                                             {"label":"Illiterate population","value":'Orignal_Illiterate population (%)'},
+                                             {"label":"Deprived Cooking Fuel","value":'Orignal_Deprived_Cooking_Fuel (%)'},
+                                             {"label":"Deprived Electricity","value":'Orignal_Deprived_Electricity (%)'},
+                                             {"label":"Deprived House","value":'Orignal_Deprived_House (%)'},
+                                             {"label":"Deprived Sanitisation","value":'Orignal_Deprived_Sanitisation (%)'},
+                                             {"label":"Deprived Drinking Water","value":'Orignal_Deprived_Drinking_Water (%)'},
+                                             {"label":"Deprived Assets","value":'Orignal_Deprived_Assets (%)'},
+                                             {"label":"Infant Mortality Rate","value":'Orignal_Infant Mortality Rate (%)'},
+                                             {"label":"Deprived Nutrition","value":'Orignal_Adults BMI Below Normal'}],
                                            value=inputDict["value_analysis_all_states_metric_dropdown"],
                                            id="analysis_all_states_metric_dropdown",
                                            maxHeight=175)
@@ -96,6 +78,31 @@ def analysisLayout(inputDict):
 
         fig = go.Figure()
         fig.add_trace(go.Bar(x=x,y=y,orientation='h',name="MPI Index",text=text,textposition='inside',
+                      marker=dict(color=x,colorscale='turbo')))
+        fig.update_layout(margin=dict(l=0, r=0, t=25, b=0),height=1000)
+    
+    if inputDict["value_analysis_all_states_metric_dropdown"] in ['Orignal_Illiterate population (%)',
+                                                                  'Orignal_Deprived_Cooking_Fuel (%)',
+                                                                  'Orignal_Deprived_Sanitisation (%)',
+                                                                  'Orignal_Deprived_Drinking_Water (%)',
+                                                                  'Orignal_Deprived_Electricity (%)',
+                                                                  'Orignal_Deprived_House (%)',
+                                                                  'Orignal_Deprived_Assets (%)',
+                                                                  'Orignal_Infant Mortality Rate (%)',
+                                                                  'Orignal_Attendance Ratio', 
+                                                                  'Orignal_Adults BMI Below Normal']:
+        
+        
+        var1 = inputDict["value_analysis_all_states_metric_dropdown"]
+
+        df = df.sort_values(var1,ascending=True)
+
+        x = list(df[var1].values)
+        y = list(df["State"].values)
+        text = [str(np.round(i,1)) for i in x]
+
+        fig = go.Figure()
+        fig.add_trace(go.Bar(x=x,y=y,orientation='h',name=var1,text=text,textposition='inside',
                       marker=dict(color=x,colorscale='turbo')))
         fig.update_layout(margin=dict(l=0, r=0, t=25, b=0),height=1000)
 
@@ -132,9 +139,53 @@ def analysisLayout(inputDict):
                      
     # plot graph
     selected_state = inputDict["value_analysis_all_states_graph_hover"]
-    selected_state_mpi = "MPI : {}".format(df[df["State"] == selected_state]["MPI Index"].values[0])
-    selected_state_mpi_rank = "MPI Rank : 14/28"
+    selected_state_metric_rank_dict = get_metric_rank(df,selected_state)
 
+    selected_state_mpi = "MPI : {}".format(selected_state_metric_rank_dict['MPI Index'][0])
+    selected_state_mpi_rank = "MPI Rank : {}/26".format(selected_state_metric_rank_dict['MPI Index'][1])
+    
+    # summary cards layout
+    indicator_dict = {'Contribution_Illiterate population (%)':"Illiteracy",
+                     'Contribution_Deprived_Cooking_Fuel (%)':"Deprived Cooking Fuel", 
+                     'Contribution_Deprived_Sanitisation (%)':"Deprived Sanitisation", 
+                     'Contribution_Deprived_Drinking_Water (%)':"Deprived Drinking Water", 
+                     'Contribution_Deprived_Electricity (%)':"Deprived Electricity", 
+                     'Contribution_Deprived_House (%)':"Deprived House", 
+                     'Contribution_Deprived_Assets (%)':"Deprived Assets", 
+                     'Contribution_Infant Mortality Rate (%)':"Infant Mortality Rate", 
+                     'Contribution_Attendance Ratio':"Attendance Ratio", 
+                     'Contribution_Adults BMI Below Normal':"Deprived Nutrition"}
+    
+    colnames = [i for i in df.columns if "Contribution_" in i]
+    card_row_1 = []
+    for i in range(5):
+
+        indicator = indicator_dict[colnames[i]]
+        metric_score = selected_state_metric_rank_dict[colnames[i].replace("Contribution_","")][0]
+        metric_rank = selected_state_metric_rank_dict[colnames[i].replace("Contribution_","")][1]
+
+        card_temp = dbc.Card(dbc.CardBody([html.P(indicator, className="card-title"),
+                             html.P(metric_score, className="card-text"),
+                             html.P("{}/26".format( metric_rank), className="rank-text")]),className="card_body")
+        card_row_1.append(card_temp)
+    
+    card_row_2 = []
+    for i in range(5,len(colnames)):
+
+        indicator = indicator_dict[colnames[i]]
+        metric_score = selected_state_metric_rank_dict[colnames[i].replace("Contribution_","")][0]
+        metric_rank = selected_state_metric_rank_dict[colnames[i].replace("Contribution_","")][1]
+
+        card_temp = dbc.Card(dbc.CardBody([html.P(indicator, className="card-title"),
+                             html.P(metric_score, className="card-text"),
+                             html.P("{}/26".format( metric_rank), className="rank-text")]),className="card_body")
+        card_row_2.append(card_temp)
+    
+    card_box_1 = html.Div(card_row_1,id="analysis_card_box_1")
+    card_box_2 = html.Div(card_row_2,id="analysis_card_box_2")
+    card_box_both = html.Div([card_box_1,card_box_2],id="analysis_card_box_both")
+
+    # ploting right side graph
     df_state = df[df["State"] == selected_state]
     colnames = [i for i in df.columns if "Contribution_" in i]
     metric_mean = dict(np.mean(df[colnames],axis=0))
@@ -175,5 +226,8 @@ layout = analysisLayout(inputdict)
 def update_function(value_analysis_all_states_metric_dropdown,
                     value_analysis_all_states_graph_hover):
     inputdict["value_analysis_all_states_metric_dropdown"]=value_analysis_all_states_metric_dropdown
-    inputdict["value_analysis_all_states_graph_hover"] = value_analysis_all_states_graph_hover['points'][0]["label"]
+
+    if value_analysis_all_states_graph_hover is not None:
+        inputdict["value_analysis_all_states_graph_hover"] = value_analysis_all_states_graph_hover['points'][0]["label"]
+    
     return analysisLayout(inputdict)
