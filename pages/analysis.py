@@ -3,6 +3,7 @@ from dash import html, dcc, callback, Input, Output
 import dash_bootstrap_components as dbc
 from data import *
 import plotly.graph_objects as go
+import plotly.express as px
 import json
 
 dash.register_page(__name__)
@@ -46,8 +47,8 @@ def get_metric_rank_india(dff):
     colnames.append("MPI Index")
     
     for i in colnames:
-        rank_dict[i.replace("Orignal_","")] = np.round(np.mean(dff[i]),1)
-    
+        rank_dict[i.replace("Orignal_","")] = np.round(np.mean(dff[i]),2)
+
     return rank_dict 
     
 
@@ -120,12 +121,18 @@ def analysisLayout(inputDict):
         
         var1 = inputDict["value_analysis_all_states_metric_dropdown"]
         df = df.sort_values(var1,ascending=True)
+        
         x = list(df[var1].values)
         y = list(df["State"].values)
         text = [str(np.round(i,1)) for i in x]
-
+            
         fig = go.Figure()
-        fig.add_trace(go.Bar(x=x,y=y,orientation='h',name=var1,text=text,textposition='inside',
+
+        if var1=="Orignal_Attendance Ratio":
+            fig.add_trace(go.Bar(x=x,y=y,orientation='h',name=var1,text=text,textposition='inside',
+                      marker=dict(color=x,colorscale='turbo_r')))
+        else:
+            fig.add_trace(go.Bar(x=x,y=y,orientation='h',name=var1,text=text,textposition='inside',
                       marker=dict(color=x,colorscale='turbo')))
         fig.update_layout(margin=dict(l=0, r=0, t=25, b=0),height=800)
 
@@ -145,7 +152,7 @@ def analysisLayout(inputDict):
 
     graph_figure = dcc.Graph(figure=fig,id="analysis_all_states_graph_hover")  
     graph_div = html.Div([graph_figure],id="analysis_all_states_graph_div")
-    all_state_box = html.Div([metric_dropdown,radio_bottons,graph_div ],id="analysis_all_state_box")
+    all_state_box = html.Div([metric_dropdown,graph_div ],id="analysis_all_state_box")
 
     #state wise
     indicator_dict = {'Contribution_Illiterate population (%)':"Illiteracy",
@@ -200,8 +207,8 @@ def analysisLayout(inputDict):
     
     card_box_1 = html.Div(card_row_1,id="analysis_card_box_1")
     card_box_2 = html.Div(card_row_2,id="analysis_card_box_2")
-    card_box_3 = html.Div([dbc.Card(dbc.CardBody([html.P("India", className="card-title-india"),
-                          html.P(str(0.75), className="card-text-india")],className="card-body-india"),className="card_body_india")],
+    card_box_3 = html.Div([dbc.Card(dbc.CardBody([html.P("India MPI", className="card-title-india"),
+                          html.P(str(selected_india_metric_rank_dict["MPI Index"]), className="card-text-india")],className="card-body-india"),className="card_body_india")],
                           "analysis_card_box_3")
     
     card_box_both = html.Div([card_box_1,card_box_2],id="analysis_card_box_both")
@@ -222,19 +229,16 @@ def analysisLayout(inputDict):
     zipped_arrs = zip(y_contribution,labels,y_india_mean_contribution)
     zipped_arrs = sorted(zipped_arrs)
     y_contribution,labels,y_india_mean_contribution= zip(*zipped_arrs)
-
-    fig_state = go.Figure()
+    
+    # for showing custom hoverdata
     custom_data = [{"labels":labels[i],"y_contribution":str(np.round(y_contribution[i],3)),
                    "z":str(selected_state_metric_rank_dict[labels[i]][0]) + " %"} for i in range(len(labels))]
-    #print(custom_data)
-    #customdata_json = [json.dumps(d) for d in custom_data]
-    customdata_json = [{'customdata': d} for d in custom_data]
-
     hovertext = []
     for d in custom_data:
         hovertext.append(f"<br>{d['labels']}: {d['z']}<br>MPI Contribution: {d['y_contribution']}")
-
-    fig_state .add_trace(go.Bar(x=y_contribution,y=labels,orientation="h",name=selected_state,hovertext=hovertext,
+    
+    fig_state = go.Figure()
+    fig_state.add_trace(go.Bar(x=y_contribution,y=labels,orientation="h",name=selected_state,hovertext=hovertext,
                                 textposition='inside'))
     fig_state .add_trace(go.Bar(x=y_india_mean_contribution ,y=labels,orientation="h",name="Indian Average",textposition='inside'))
     fig_state.update_layout(margin=dict(l=0, r=0, t=25, b=0),width=575,height=1000,
@@ -265,7 +269,7 @@ layout = analysisLayout(inputdict)
 def update_function(value_analysis_all_states_metric_dropdown,
                     value_analysis_all_states_graph_hover):
     inputdict["value_analysis_all_states_metric_dropdown"]=value_analysis_all_states_metric_dropdown
-
+    #inputdict["value_analysis_radio_buttons"]=value_analysis_radio_buttons
     if value_analysis_all_states_graph_hover is not None:
         inputdict["value_analysis_all_states_graph_hover"] = value_analysis_all_states_graph_hover['points'][0]["label"]
     
