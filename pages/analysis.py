@@ -10,6 +10,18 @@ dash.register_page(__name__)
 
 def get_metric_rank(dff,statename):
 
+    indicator_dict = {'Contribution_Illiterate population (%)':"Illiteracy",
+                     'Contribution_Deprived_Cooking_Fuel (%)':"Deprived Cooking Fuel", 
+                     'Contribution_Deprived_Sanitisation (%)':"Deprived Sanitisation", 
+                     'Contribution_Deprived_Drinking_Water (%)':"Deprived Drinking Water", 
+                     'Contribution_Deprived_Electricity (%)':"Deprived Electricity", 
+                     'Contribution_Deprived_House (%)':"Deprived House", 
+                     'Contribution_Deprived_Assets (%)':"Deprived Assets", 
+                     'Contribution_Infant Mortality Rate (%)':"Infant Mortality Rate", 
+                     'Contribution_Attendance Ratio':"Attendance Ratio", 
+                     'Contribution_Adults BMI Below Normal':"Deprived Nutrition",
+                     'MPI Index':"MPI Index"}
+
     rank_dict = {}
     dff = dff.reset_index().drop(columns="index")
     colnames = [i for i in dff.columns if "Orignal_" in i]
@@ -22,7 +34,19 @@ def get_metric_rank(dff,statename):
         
         dff1 = dff1.reset_index().drop(columns="index")  
         dff_state = dff1[dff1["State"]==statename]
-        rank_dict[i.replace("Orignal_","")] = [np.round(dff_state[i].values[0],1),dff_state.index[0] + 1]
+        rank_dict[indicator_dict[i.replace("Orignal_","Contribution_")]] = [np.round(dff_state[i].values[0],1),dff_state.index[0] + 1]
+    
+    return rank_dict 
+
+def get_metric_rank_india(dff):
+
+    rank_dict = {}
+    dff = dff.reset_index().drop(columns="index")
+    colnames = [i for i in dff.columns if "Orignal_" in i]
+    colnames.append("MPI Index")
+    
+    for i in colnames:
+        rank_dict[i.replace("Orignal_","")] = np.round(np.mean(dff[i]),1)
     
     return rank_dict 
     
@@ -32,7 +56,6 @@ def analysisLayout(inputDict):
     df = extractData()
 
     # input dropdown
-
     metric_dropdown = dcc.Dropdown(options=[{"label":"Overall MPI Index of States","value":"overall_mpi_index"},
                                             {"label":"Distribution of Contribution of Indicators","value":"distribution_indicators"},
                                              {"label":"Cluster Analysis","value":"cluster_analysis"},
@@ -96,9 +119,7 @@ def analysisLayout(inputDict):
         
         
         var1 = inputDict["value_analysis_all_states_metric_dropdown"]
-
         df = df.sort_values(var1,ascending=True)
-
         x = list(df[var1].values)
         y = list(df["State"].values)
         text = [str(np.round(i,1)) for i in x]
@@ -127,7 +148,6 @@ def analysisLayout(inputDict):
     all_state_box = html.Div([metric_dropdown,radio_bottons,graph_div ],id="analysis_all_state_box")
 
     #state wise
-
     indicator_dict = {'Contribution_Illiterate population (%)':"Illiteracy",
                      'Contribution_Deprived_Cooking_Fuel (%)':"Deprived Cooking Fuel", 
                      'Contribution_Deprived_Sanitisation (%)':"Deprived Sanitisation", 
@@ -142,6 +162,7 @@ def analysisLayout(inputDict):
     # plot graph
     selected_state = inputDict["value_analysis_all_states_graph_hover"]
     selected_state_metric_rank_dict = get_metric_rank(df,selected_state)
+    selected_india_metric_rank_dict = get_metric_rank_india(df)
 
     selected_state_mpi = "MPI : {}".format(selected_state_metric_rank_dict['MPI Index'][0])
     selected_state_mpi_rank = "MPI Rank : {}/26".format(selected_state_metric_rank_dict['MPI Index'][1])
@@ -163,29 +184,28 @@ def analysisLayout(inputDict):
     for i in range(5):
 
         indicator = indicator_dict[colnames[i]]
-        metric_score = selected_state_metric_rank_dict[colnames[i].replace("Contribution_","")][0]
-        metric_rank = selected_state_metric_rank_dict[colnames[i].replace("Contribution_","")][1]
-
+        metric_score = selected_india_metric_rank_dict[colnames[i].replace("Contribution_","")]
         card_temp = dbc.Card(dbc.CardBody([html.P(indicator, className="card-title"),
-                             html.P(str(metric_score)+" %", className="card-text"),
-                             html.P("{}/26".format( metric_rank), className="rank-text")]),className="card_body")
+                             html.P(str(metric_score)+" %", className="card-text")]),className="card_body")
         card_row_1.append(card_temp)
     
     card_row_2 = []
     for i in range(5,len(colnames)):
 
         indicator = indicator_dict[colnames[i]]
-        metric_score = selected_state_metric_rank_dict[colnames[i].replace("Contribution_","")][0]
-        metric_rank = selected_state_metric_rank_dict[colnames[i].replace("Contribution_","")][1]
-
+        metric_score = selected_india_metric_rank_dict[colnames[i].replace("Contribution_","")]
         card_temp = dbc.Card(dbc.CardBody([html.P(indicator, className="card-title"),
-                             html.P(str(metric_score)+" %", className="card-text"),
-                             html.P("{}/26".format( metric_rank), className="rank-text")]),className="card_body")
+                             html.P(str(metric_score)+" %", className="card-text")]),className="card_body")
         card_row_2.append(card_temp)
     
     card_box_1 = html.Div(card_row_1,id="analysis_card_box_1")
     card_box_2 = html.Div(card_row_2,id="analysis_card_box_2")
+    card_box_3 = html.Div([dbc.Card(dbc.CardBody([html.P("India", className="card-title-india"),
+                          html.P(str(0.75), className="card-text-india")],className="card-body-india"),className="card_body_india")],
+                          "analysis_card_box_3")
+    
     card_box_both = html.Div([card_box_1,card_box_2],id="analysis_card_box_both")
+    card_box_all = html.Div([card_box_3,card_box_both],id="analysis_card_box_all")
 
     # ploting right side graph
     df_state = df[df["State"] == selected_state]
@@ -197,9 +217,25 @@ def analysisLayout(inputDict):
         labels.append(indicator_dict[i])
         y_contribution.append(df_state[i].values[0])
         y_india_mean_contribution.append(metric_mean[i])
-    
+
+    # sort both labels and array .
+    zipped_arrs = zip(y_contribution,labels,y_india_mean_contribution)
+    zipped_arrs = sorted(zipped_arrs)
+    y_contribution,labels,y_india_mean_contribution= zip(*zipped_arrs)
+
     fig_state = go.Figure()
-    fig_state .add_trace(go.Bar(x=y_contribution,y=labels,orientation="h",name=selected_state,textposition='inside'))
+    custom_data = [{"labels":labels[i],"y_contribution":str(np.round(y_contribution[i],3)),
+                   "z":str(selected_state_metric_rank_dict[labels[i]][0]) + " %"} for i in range(len(labels))]
+    #print(custom_data)
+    #customdata_json = [json.dumps(d) for d in custom_data]
+    customdata_json = [{'customdata': d} for d in custom_data]
+
+    hovertext = []
+    for d in custom_data:
+        hovertext.append(f"<br>{d['labels']}: {d['z']}<br>MPI Contribution: {d['y_contribution']}")
+
+    fig_state .add_trace(go.Bar(x=y_contribution,y=labels,orientation="h",name=selected_state,hovertext=hovertext,
+                                textposition='inside'))
     fig_state .add_trace(go.Bar(x=y_india_mean_contribution ,y=labels,orientation="h",name="Indian Average",textposition='inside'))
     fig_state.update_layout(margin=dict(l=0, r=0, t=25, b=0),width=575,height=1000,
                             legend=dict(x=0,y=1.025,orientation="h",bgcolor='rgba(255, 255, 255, 0)'))
@@ -209,12 +245,10 @@ def analysisLayout(inputDict):
                                       html.Div([selected_state_mpi]),
                                       html.Div([selected_state_mpi_rank])],id="analysis_selected_state_metric")
 
-    
-    
     graph_figure_state_heading = html.P("Indicator Contribution in MPI",id="graph_figure_state_heading")
     state_wise_box = html.Div([selected_state_metric,graph_figure_state_heading,graph_figure_state],id="analysis_state_wise_box")
     # final layout
-    layout = html.Div([card_box_both,all_state_box,state_wise_box],id='analytics-output')
+    layout = html.Div([card_box_all,all_state_box,state_wise_box],id='analytics-output')
 
     return layout
 
