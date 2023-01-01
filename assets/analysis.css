@@ -96,6 +96,7 @@
     margin-right: 10px;
 }
 #analysis_all_states_metric_dropdown{
+    margin-top:1px;
     font-weight: bold;
 }
 #analysis_radio-buttons{
