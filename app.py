@@ -8,4 +8,4 @@ app = Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_A
 app.layout = masterLayout()
 
 if __name__ == '__main__':
-	app.run_server()
+	app.run_server(port=8050)
