@@ -124,7 +124,7 @@ def analysisLayout(inputDict):
         
         x = list(df[var1].values)
         y = list(df["State"].values)
-        text = [str(np.round(i,1)) for i in x]
+        text = [str(np.round(i,1))+' %' for i in x]
             
         fig = go.Figure()
 
