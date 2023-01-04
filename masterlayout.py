@@ -14,23 +14,29 @@ def masterLayout():
             [
                 dbc.NavLink(
                     [html.I(className="fa-solid fa-house"), html.Span("Global MPI",className="sidebar_span")],
-                    href="/about",
-                    active="exact",
+                    href="/",
+                    active="exact"
                 ),
                 
                 dbc.NavLink(
                     [html.I(className="fa-solid fa-database"), html.Span("Data Source - NDAP",className="sidebar_span")],
                     href="/datasource",
-                    active="exact",
+                    active="exact"
                 ),
                 dbc.NavLink(
-                    [html.I(className="fa-solid fa-magnifying-glass-chart"), html.Span("Analysis",className="sidebar_span")],
-                    href="/analysis",
-                    active="exact",
+                    [html.I(className="fa-solid fa-magnifying-glass-chart"), html.Span("Exploratory Data Analysis",className="sidebar_span")],
+                    href="/eda",
+                    active="exact"
                 ),
+                dbc.NavLink(
+                    [html.I(className="fa-solid fa-chart-column"), html.Span("Analysis",className="sidebar_span")],
+                    href="/analysis",
+                    active="exact"
+                )
             ],
             vertical=True,
             pills=True,
+            id = "masterlayout_navbar"
         )
     
     sidebar = html.Div([sidebar_heading,html.Hr(),side_navigation_bar ],className="sidebar")

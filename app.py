@@ -4,7 +4,8 @@ import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html
 from masterlayout import masterLayout
 
-app = Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME], use_pages=True)
+app = Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME], 
+          use_pages=True,url_base_pathname='/')
 app.layout = masterLayout()
 
 if __name__ == '__main__':

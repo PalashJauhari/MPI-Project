@@ -8,269 +8,131 @@ import json
 
 dash.register_page(__name__)
 
+def analysisLayout():
 
-def get_metric_rank(dff,statename):
-
-    indicator_dict = {'Contribution_Illiterate population (%)':"Illiteracy",
-                     'Contribution_Deprived_Cooking_Fuel (%)':"Deprived Cooking Fuel", 
-                     'Contribution_Deprived_Sanitisation (%)':"Deprived Sanitisation", 
-                     'Contribution_Deprived_Drinking_Water (%)':"Deprived Drinking Water", 
-                     'Contribution_Deprived_Electricity (%)':"Deprived Electricity", 
-                     'Contribution_Deprived_House (%)':"Deprived House", 
-                     'Contribution_Deprived_Assets (%)':"Deprived Assets", 
-                     'Contribution_Infant Mortality Rate (%)':"Infant Mortality Rate", 
-                     'Contribution_Attendance Ratio':"Attendance Ratio", 
-                     'Contribution_Adults BMI Below Normal':"Deprived Nutrition",
-                     'MPI Index':"MPI Index"}
-
-    rank_dict = {}
-    dff = dff.reset_index().drop(columns="index")
-    colnames = [i for i in dff.columns if "Orignal_" in i]
-    colnames.append("MPI Index")
-    for i in colnames:
-        if i != "Orignal_Attendance Ratio":
-            dff1 = dff.sort_values(i,ascending=False)
-        else:
-            dff1 = dff.sort_values(i,ascending=False)
-        
-        dff1 = dff1.reset_index().drop(columns="index")  
-        dff_state = dff1[dff1["State"]==statename]
-        rank_dict[indicator_dict[i.replace("Orignal_","Contribution_")]] = [np.round(dff_state[i].values[0],1),dff_state.index[0] + 1]
+    heading_result = html.Div([html.H4(['Clustering of Indian States Based on Multidimensional Poverty Index Indicators'],
+                         style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
     
-    return rank_dict 
+    content_result = html.Div([],className="analysis_content")
 
-def get_metric_rank_india(dff):
+    heading1 = html.Div([html.H4(['Motivation'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
+    content1 = html.Div([html.P("In our analysis of data on poverty in different states, we found that\
+                                 using the Multidimensional Poverty Index (MPI) alone isn't enough to \
+                                 understand the full picture. While the MPI can help us identify which \
+                                 states are doing poorly in terms of poverty, breaking down the data by\
+                                 individual indicators gives us a more nuanced understanding. For example,\
+                                 we found that Himachal Pradesh and Arunachal Pradesh both have an MPI of \
+                                 0.48 and 0.46 respectively, but the contribution of illiteracy to their \
+                                 overall MPI is very different: just 11% for Himachal Pradesh, compared to \
+                                 31% for Arunachal Pradesh. Similarly, Jharkhand and Tripura have similar \
+                                 MPIs (0.6 and 0.59, respectively), but the contribution of attendance \
+                                 ratios to their overall MPI is 8% and 28%, respectively.This highlights \
+                                the importance of looking at individual indicators, rather than just relying\
+                                on overall MPI scores. By identifying which states have similar contributing\
+                                indicators, we can make more targeted policy recommendations to address \
+                                poverty in those areas. For instance, our analysis found that Bihar, \
+                                Uttar Pradesh, Punjab, and Haryana are all struggling with the same set of \
+                                indicators, so similar policy improvements could be implemented in those \
+                                states.")],className="analysis_content")    
 
-    rank_dict = {}
-    dff = dff.reset_index().drop(columns="index")
-    colnames = [i for i in dff.columns if "Orignal_" in i]
-    colnames.append("MPI Index")
+    heading2 = html.Div([html.H4(['Factor Analysis'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
+    content2 = html.Div([html.P("Factor analysis is a statistical method used to identify underlying \
+                                 factors or hidden drivers that contribute to observed variations in a \
+                                 set of variables. In our study, we have identified 10 indicators that \
+                                 make up the Multidimensional Poverty Index (MPI). However, it is possible \
+                                 that there are fewer, underlying factors that are actually responsible for\
+                                 the variation in these 10 indicators. By using factor analysis, we can \
+                                 try to identify the number of these latent factors and understand how \
+                                 they relate to the observed indicators. This can help us identify the \
+                                 key factors that we can focus on in order to improve all of the indicators.\
+                                 The correlation matrix shows that some of the indicators are correlated \
+                                 with each other, making it an appropriate choice to use factor analysis \
+                                 to explore the latent factors that may be responsible for the observed \
+                                 correlations in the data.")],className="analysis_content")
+
+    heading3 = html.Div([html.H4(['Methodology'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
+    subheading3 = html.Div([html.H4(['Preliminary Test'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_subheading")
+    content3 = html.Div([html.P("It is important to verify the quality of the data before performing factor \
+                                 analysis. The Bartlett sphericity test can be used to determine whether \
+                                 the correlation matrix of the data is significantly different from an \
+                                 identity matrix. If it is, this suggests that there is sufficient structure\
+                                 in the data to proceed with factor analysis. In our study, we found that \
+                                 the correlations in the data indicate the presence of latent factors that\
+                                 underlie the data.")],className="analysis_content")
+    subheading4 = html.Div([html.H4(['Identifying Number of Factors'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_subheading")
     
-    for i in colnames:
-        rank_dict[i.replace("Orignal_","")] = np.round(np.mean(dff[i]),2)
-
-    return rank_dict 
     
+    img4 = html.Img(src="assets/num_factors.PNG",
+                   style={"display":"inline-block","width":"350px","height":"250px","border-radius":"25px"})
+    content4 = html.Div([html.P("To identify the number of factors that contribute to the covariance in\
+                                 the data, we used Eigenvalues. These values indicate the amount of \
+                                 variance explained by each factor. In our analysis, we only included \
+                                 factors that had Eigenvalues greater than 1, as these factors explain \
+                                 more variance than a single indicator. As shown in the figure, there \
+                                 are two factors that have Eigenvalues greater than 1. Therefore, we \
+                                 selected these two factors for our analysis."),img4],
+                                 className="analysis_content",
+                                 id="analysis_num_factors")
 
-def analysisLayout(inputDict):
+    heading5 = html.Div([html.H4(['Factor Analysis Results'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
+    content5 = html.Div([html.P("The results of our factor analysis model showed that 60% of the variation\
+                                 in the original dataset could be explained by two factors. These factors,\
+                                 labeled as factor-1 and factor-2, had significant influence on several \
+                                 variables in the dataset. For example, variables such as Deprived Cooking \
+                                 Fuel, Deprived House, and Deprived Assets had high loading on factor-1, \
+                                 meaning they were largely influenced by this factor. On the other hand, \
+                                 variables such as Deprived Drinking Water, Deprived Electricity, Infant \
+                                 Mortality Rate, and Nutrition had high loading on factor-2, indicating \
+                                 they were primarily associated with this factor. Other variables, such as\
+                                 Illiteracy, Deprived Sanitation, and Attendance Ratio, had loading on both\
+                                 factors, suggesting they were impacted by both.The significance of this\
+                                 analysis is that if we focus on improving factor-1, we could expect to \
+                                 see improvements in indicators like Cooking Fuel, Housing, and Assets. \
+                                 Similarly, working to improve factor-2 could lead to positive changes \
+                                 in indicators like Drinking Water, Electricity, Infant Mortality Rate, \
+                                and Nutrition.")],className="analysis_content")
+    #table5
 
-    df = extractData()
-
-    # input dropdown
-    metric_dropdown = dcc.Dropdown(options=[{"label":"Overall MPI Index of States","value":"overall_mpi_index"},
-                                            {"label":"Distribution of Contribution of Indicators","value":"distribution_indicators"},
-                                             {"label":"Cluster Analysis","value":"cluster_analysis"},
-                                             {"label":"Illiterate population","value":'Orignal_Illiterate population (%)'},
-                                             {"label":"Deprived Cooking Fuel","value":'Orignal_Deprived_Cooking_Fuel (%)'},
-                                             {"label":"Deprived Electricity","value":'Orignal_Deprived_Electricity (%)'},
-                                             {"label":"Deprived House","value":'Orignal_Deprived_House (%)'},
-                                             {"label":"Deprived Sanitisation","value":'Orignal_Deprived_Sanitisation (%)'},
-                                             {"label":"Deprived Drinking Water","value":'Orignal_Deprived_Drinking_Water (%)'},
-                                             {"label":"Infant Mortality Rate","value":'Orignal_Infant Mortality Rate (%)'},
-                                             {"label":"Deprived Nutrition","value":'Orignal_Adults BMI Below Normal'},
-                                             {"label":"Deprived Assets","value":'Orignal_Deprived_Assets (%)'},
-                                             {"label":"Attendance Ratio","value":'Orignal_Attendance Ratio'}],
-                                           value=inputDict["value_analysis_all_states_metric_dropdown"],
-                                           id="analysis_all_states_metric_dropdown",
-                                           maxHeight=175)
-
-    radio_bottons = dcc.RadioItems(id='analysis_radio-buttons',
-        options=[
-            {'label': html.Div([html.I(className="fa-solid fa-chart-bar",style={"margin-left":"10px"}),html.Span("  Bar Chart")],
-                               style={"display":"inline-block"}), 'value': 'bar-chart'},
-            {'label': html.Div([html.I(className="fa-solid fa-map-location",style={"margin-left":"10px"}),html.Span("  Map")],
-                               style={"display":"inline-block"}), 'value': 'map-view'}],value='bar-chart')
-
+    heading6 = html.Div([html.H4(['Clustering With Factors'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
     
-    indicator_dict = {'Pct_Illiterate population (%)':"Illiteracy",
-                     'Pct_Deprived_Cooking_Fuel (%)':"Deprived Cooking Fuel", 
-                     'Pct_Deprived_Sanitisation (%)':"Deprived Sanitisation", 
-                     'Pct_Deprived_Drinking_Water (%)':"Deprived Drinking Water", 
-                     'Pct_Deprived_Electricity (%)':"Deprived Electricity", 
-                     'Pct_Deprived_House (%)':"Deprived House", 
-                     'Pct_Deprived_Assets (%)':"Deprived Assets", 
-                     'Pct_Infant Mortality Rate (%)':"Infant Mortality Rate", 
-                     'Pct_Attendance Ratio':"Attendance Ratio", 
-                     'Pct_Adults BMI Below Normal':"Deprived Nutrition"}
-
-    if inputDict["value_analysis_all_states_metric_dropdown"]=='overall_mpi_index':
-        
-        df = df.sort_values("MPI Index",ascending=True)
-        
-        x = list(df["MPI Index"].values)
-        y = list(df["State"].values)
-        text = [str(np.round(i,4)) for i in list(df["MPI Index"].values)]
-
-        fig = go.Figure()
-        fig.add_trace(go.Bar(x=x,y=y,orientation='h',name="MPI Index",text=text,textposition='inside',
-                      marker=dict(color=x,colorscale='turbo')))
-        fig.update_layout(margin=dict(l=0, r=0, t=25, b=0),height=800)
     
-    if inputDict["value_analysis_all_states_metric_dropdown"] in ['Orignal_Illiterate population (%)',
-                                                                  'Orignal_Deprived_Cooking_Fuel (%)',
-                                                                  'Orignal_Deprived_Sanitisation (%)',
-                                                                  'Orignal_Deprived_Drinking_Water (%)',
-                                                                  'Orignal_Deprived_Electricity (%)',
-                                                                  'Orignal_Deprived_House (%)',
-                                                                  'Orignal_Deprived_Assets (%)',
-                                                                  'Orignal_Infant Mortality Rate (%)',
-                                                                  'Orignal_Attendance Ratio', 
-                                                                  'Orignal_Adults BMI Below Normal',
-                                                                  "Orignal_Attendance Ratio"]:
-        
-        
-        var1 = inputDict["value_analysis_all_states_metric_dropdown"]
-        df = df.sort_values(var1,ascending=True)
-        
-        x = list(df[var1].values)
-        y = list(df["State"].values)
-        text = [str(np.round(i,1))+' %' for i in x]
-            
-        fig = go.Figure()
-
-        if var1=="Orignal_Attendance Ratio":
-            fig.add_trace(go.Bar(x=x,y=y,orientation='h',name=var1,text=text,textposition='inside',
-                      marker=dict(color=x,colorscale='turbo_r')))
-        else:
-            fig.add_trace(go.Bar(x=x,y=y,orientation='h',name=var1,text=text,textposition='inside',
-                      marker=dict(color=x,colorscale='turbo')))
-        fig.update_layout(margin=dict(l=0, r=0, t=25, b=0),height=800)
-
-    if inputDict["value_analysis_all_states_metric_dropdown"]=='distribution_indicators':
-        
-        df = df.sort_values("MPI Index",ascending=True)
-        colnames = [i for i in df.columns if "Pct_" in i]
-
-        fig = go.Figure()
-        for i in colnames:
-            x = list(df[i].values)
-            y = list(df["State"].values)
-            text = [str(np.round(i,0)) for i in list(df[i].values)]
-            fig.add_trace(go.Bar(x=x,y=y,orientation='h',name=indicator_dict[i],text=text,textposition='inside'))
-
-        fig.update_layout(barmode='relative',margin=dict(l=0, r=0, t=25, b=0),height=1000)
-
-    graph_figure = dcc.Graph(figure=fig,id="analysis_all_states_graph_hover")  
-    graph_div = html.Div([graph_figure],id="analysis_all_states_graph_div")
-    all_state_box = html.Div([metric_dropdown,graph_div ],id="analysis_all_state_box")
-
-    #state wise
-    indicator_dict = {'Contribution_Illiterate population (%)':"Illiteracy",
-                     'Contribution_Deprived_Cooking_Fuel (%)':"Deprived Cooking Fuel", 
-                     'Contribution_Deprived_Sanitisation (%)':"Deprived Sanitisation", 
-                     'Contribution_Deprived_Drinking_Water (%)':"Deprived Drinking Water", 
-                     'Contribution_Deprived_Electricity (%)':"Deprived Electricity", 
-                     'Contribution_Deprived_House (%)':"Deprived House", 
-                     'Contribution_Deprived_Assets (%)':"Deprived Assets", 
-                     'Contribution_Infant Mortality Rate (%)':"Infant Mortality Rate", 
-                     'Contribution_Attendance Ratio':"Attendance Ratio", 
-                     'Contribution_Adults BMI Below Normal':"Deprived Nutrition"}
-                     
-    # plot graph
-    selected_state = inputDict["value_analysis_all_states_graph_hover"]
-    selected_state_metric_rank_dict = get_metric_rank(df,selected_state)
-    selected_india_metric_rank_dict = get_metric_rank_india(df)
-
-    selected_state_mpi = "MPI : {}".format(selected_state_metric_rank_dict['MPI Index'][0])
-    selected_state_mpi_rank = "MPI Rank : {}/26".format(selected_state_metric_rank_dict['MPI Index'][1])
+    img6_1 = html.Img(src="assets/distortion_score.PNG",
+                   style={"display":"inline-block","width":"50%","height":"350px","border-radius":"25px"})
+    img6_2 = html.Img(src="assets/shillhoute_score.PNG",
+                   style={"display":"inline-block","width":"50%","height":"350px","border-radius":"25px"})
     
-    # summary cards layout
-    indicator_dict = {'Contribution_Illiterate population (%)':"Illiteracy",
-                     'Contribution_Deprived_Cooking_Fuel (%)':"Deprived Cooking Fuel", 
-                     'Contribution_Deprived_Sanitisation (%)':"Deprived Sanitisation", 
-                     'Contribution_Deprived_Drinking_Water (%)':"Deprived Drinking Water", 
-                     'Contribution_Deprived_Electricity (%)':"Deprived Electricity", 
-                     'Contribution_Deprived_House (%)':"Deprived House", 
-                     'Contribution_Deprived_Assets (%)':"Deprived Assets", 
-                     'Contribution_Infant Mortality Rate (%)':"Infant Mortality Rate", 
-                     'Contribution_Attendance Ratio':"Attendance Ratio", 
-                     'Contribution_Adults BMI Below Normal':"Deprived Nutrition"}
     
-    colnames = [i for i in df.columns if "Contribution_" in i]
-    card_row_1 = []
-    for i in range(5):
+    content6 = html.Div([html.P("This section describes how clustering analysis was performed using KMeans \
+                                 Clustering. Clustering is a technique for dividing a dataset into groups \
+                                 (also known as clusters) of similar data points. The motivation of \
+                                 clustering has been previously explained. Before applying KMeans \
+                                 Clustering, we identified two latent factors. These latent factors are \
+                                 underlying features or characteristics that are not directly observed, \
+                                 but can be inferred from observed data. Identifying latent factors can \
+                                 help to focus the analysis and improve the interpretability of the results.\
+                                 Once the latent factors have been identified, we used KMeans Clustering to \
+                                 group the data points into clusters.KMeans Clustering is a popular \
+                                 algorithm that divides a dataset into a specified number of clusters by\
+                                 iteratively reassigning data points to the cluster with the nearest mean,\
+                                 until the cluster means no longer change. One issue with using KMeans \
+                                 Clustering is determining the appropriate number of clusters to use. \
+                                 We addressed this by using a distortion score elbow plot, which is a \
+                                 graphical tool that plots the distortion score\
+                                 (a measure of within-cluster variance) against the number of clusters.\
+                                 The elbow in the plot indicates the optimal number of clusters, \
+                                 as it is the point at which the distortion score decreases at a \
+                                 diminishing rate. Based on the elbow plot, we selected 3 clusters for our \
+                                 analysis. Finally, we performed KMeans Clustering with 3 clusters and \
+                                 the two identified latent factors, and obtained a silhouette score of \
+                                 0.48. The resulting clusters and silhouette score provide valuable \
+                                 insights into the patterns and relationships within the data."),
+                                 img6_1,img6_2],
+                                 className="analysis_content")
 
-        indicator = indicator_dict[colnames[i]]
-        metric_score = selected_india_metric_rank_dict[colnames[i].replace("Contribution_","")]
-        card_temp = dbc.Card(dbc.CardBody([html.P(indicator, className="card-title"),
-                             html.P(str(metric_score)+" %", className="card-text")]),className="card_body")
-        card_row_1.append(card_temp)
-    
-    card_row_2 = []
-    for i in range(5,len(colnames)):
 
-        indicator = indicator_dict[colnames[i]]
-        metric_score = selected_india_metric_rank_dict[colnames[i].replace("Contribution_","")]
-        card_temp = dbc.Card(dbc.CardBody([html.P(indicator, className="card-title"),
-                             html.P(str(metric_score)+" %", className="card-text")]),className="card_body")
-        card_row_2.append(card_temp)
-    
-    card_box_1 = html.Div(card_row_1,id="analysis_card_box_1")
-    card_box_2 = html.Div(card_row_2,id="analysis_card_box_2")
-    card_box_3 = html.Div([dbc.Card(dbc.CardBody([html.P("India MPI", className="card-title-india"),
-                          html.P(str(selected_india_metric_rank_dict["MPI Index"]), className="card-text-india")],className="card-body-india"),className="card_body_india")],
-                          "analysis_card_box_3")
-    
-    card_box_both = html.Div([card_box_1,card_box_2],id="analysis_card_box_both")
-    card_box_all = html.Div([card_box_3,card_box_both],id="analysis_card_box_all")
-
-    # ploting right side graph
-    df_state = df[df["State"] == selected_state]
-    colnames = [i for i in df.columns if "Contribution_" in i]
-    metric_mean = dict(np.mean(df[colnames],axis=0))
-
-    labels ,y_contribution,y_india_mean_contribution = [],[],[]
-    for i in colnames:
-        labels.append(indicator_dict[i])
-        y_contribution.append(df_state[i].values[0])
-        y_india_mean_contribution.append(metric_mean[i])
-
-    # sort both labels and array .
-    zipped_arrs = zip(y_contribution,labels,y_india_mean_contribution)
-    zipped_arrs = sorted(zipped_arrs)
-    y_contribution,labels,y_india_mean_contribution= zip(*zipped_arrs)
-    
-    # for showing custom hoverdata
-    custom_data = [{"labels":labels[i],"y_contribution":str(np.round(y_contribution[i],3)),
-                   "z":str(selected_state_metric_rank_dict[labels[i]][0]) + " %"} for i in range(len(labels))]
-    hovertext = []
-    for d in custom_data:
-        hovertext.append(f"<br>{d['labels']}: {d['z']}<br>MPI Contribution: {d['y_contribution']}")
-    
-    fig_state = go.Figure()
-    fig_state.add_trace(go.Bar(x=y_contribution,y=labels,orientation="h",name=selected_state,hovertext=hovertext,
-                                textposition='inside'))
-    fig_state .add_trace(go.Bar(x=y_india_mean_contribution ,y=labels,orientation="h",name="Indian Average",textposition='inside'))
-    fig_state.update_layout(margin=dict(l=0, r=0, t=25, b=0),width=575,height=1000,
-                            legend=dict(x=0,y=1.025,orientation="h",bgcolor='rgba(255, 255, 255, 0)'))
-    graph_figure_state = dcc.Graph(figure=fig_state)
-    
-    selected_state_metric = html.Div([html.Div([selected_state]),
-                                      html.Div([selected_state_mpi]),
-                                      html.Div([selected_state_mpi_rank])],id="analysis_selected_state_metric")
-
-    graph_figure_state_heading = html.P("Indicator Contribution in MPI",id="graph_figure_state_heading")
-    state_wise_box = html.Div([selected_state_metric,graph_figure_state_heading,graph_figure_state],id="analysis_state_wise_box")
-    # final layout
-    layout = html.Div([card_box_all,all_state_box,state_wise_box],id='analytics-output')
+    layout = html.Div([ heading_result,content_result,heading1,content1,heading2,content2,heading3,subheading3,content3,
+                       subheading4,content4,heading5,content5,heading6,content6])
 
     return layout
 
-
-f = open("pages/inputdict.json")
-inputdict = json.load(f)
-layout = analysisLayout(inputdict)
-
-@callback(
-    Output(component_id='analytics-output', component_property='children'),
-    [Input(component_id="analysis_all_states_metric_dropdown", component_property='value'),
-    Input(component_id="analysis_all_states_graph_hover", component_property='clickData')])
-
-def update_function(value_analysis_all_states_metric_dropdown,
-                    value_analysis_all_states_graph_hover):
-    inputdict["value_analysis_all_states_metric_dropdown"]=value_analysis_all_states_metric_dropdown
-    #inputdict["value_analysis_radio_buttons"]=value_analysis_radio_buttons
-    if value_analysis_all_states_graph_hover is not None:
-        inputdict["value_analysis_all_states_graph_hover"] = value_analysis_all_states_graph_hover['points'][0]["label"]
-    
-    return analysisLayout(inputdict)
+layout = analysisLayout()
