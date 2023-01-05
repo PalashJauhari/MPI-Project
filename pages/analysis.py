@@ -19,14 +19,60 @@ def analysisLayout():
     df = df1.merge(df2,on="State",how="inner")
     df["FA_Cluster"] = df["FA_Cluster"].apply(lambda x : str(x))
 
+    # plot clusters
     fig_cluster = px.scatter(df, x="Factor-1", y="Factor-2",color="FA_Cluster",
                             hover_data=["State"],size="MPI Index")
     fig_cluster.update_layout(title={'text': "<b>State Clusters Based on MPI Indicators</b>",'y':1.0,'x':0.51, 
                               'xanchor': 'center','yanchor': 'top'},
-                      margin=dict(l=0, r=0, t=25, b=0),height=400,width=650,showlegend=False)
+                      margin=dict(l=0, r=0, t=25, b=0),height=400,width=580,showlegend=False)
     fig_cluster = dcc.Graph(figure=fig_cluster)  
-    fig_cluster_div = html.Div([fig_cluster])
+    fig_cluster_div = html.Div([fig_cluster],id="analysis_state_clusters")
 
+    # plot bar-chart comparisons
+    pct_contribution_colnames = [i for i in df.columns if "Pct" in i]
+    colnames = [i for i in df.columns if "Pct" in i]
+    colnames.append("State")
+    colnames.append("MPI Index")
+    colnames.append("FA_Cluster")
+    df = df[colnames]
+
+    input_state = "Bihar"
+    df_state = df[df["State"]==input_state]
+    pct_contribution_state = [df_state[i].values[0] for i in pct_contribution_colnames]
+
+    state_cluster = df["FA_Cluster"].values[0]
+    df_cluster = df[df["FA_Cluster"]==state_cluster]
+    df_cluster = df_cluster.mean(axis=0)
+    df_cluster = df_cluster.T
+    pct_contribution_cluster = [df_cluster[i] for i in pct_contribution_colnames]
+
+
+    df_india = df.copy()
+    df_india = df_india.mean(axis=0)
+    df_india = df_india.T
+    pct_contribution_india = [df_india[i] for i in pct_contribution_colnames]
+
+    all_count = len(pct_contribution_colnames)
+    pct_all = pct_contribution_state+pct_contribution_cluster+pct_contribution_india
+    type_all = [input_state]*all_count+["Cluster_"+state_cluster]*all_count+["India"]*all_count
+    
+    
+    pct_contribution_colnames_display = [i.replace("Pct_","") for i in pct_contribution_colnames]
+    dff = pd.DataFrame({"% Contribution in MPI":pct_all,"Indicator":pct_contribution_colnames_display*3,
+                       "Type":type_all})
+    
+    
+    fig_compare = px.bar(dff, x="Indicator", y="% Contribution in MPI", 
+                 color="Type", barmode="group")
+
+    fig_compare.update_layout(title={'text': "<b>Comparison</b>",'y':1.0,'x':0.51, 
+                              'xanchor': 'center','yanchor': 'top'},
+                            margin=dict(l=0, r=0, t=25, b=0),height=400,width=700,showlegend=False)
+    fig_compare = dcc.Graph(figure=fig_compare)  
+    fig_compare_div = html.Div([fig_compare],id="analysis_state_compare")
+    
+
+    
     heading1 = html.Div([html.H4(['Motivation'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
     content1 = html.Div([html.P("In our analysis of data on poverty in different states, we found that\
                                  using the Multidimensional Poverty Index (MPI) alone isn't enough to \
@@ -207,7 +253,7 @@ def analysisLayout():
                                  className="analysis_content")
 
 
-    layout = html.Div([ heading_result,fig_cluster_div ,heading1,content1,correlation_graph_div,
+    layout = html.Div([ heading_result,fig_cluster_div,fig_compare_div,heading1,content1,correlation_graph_div,
                         heading2,content2,heading3,subheading3,content3,
                         subheading4,content4,heading5,content5,heading6,content6])
 
