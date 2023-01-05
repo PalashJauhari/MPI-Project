@@ -13,7 +13,19 @@ def analysisLayout():
     heading_result = html.Div([html.H4(['Clustering of Indian States Based on Multidimensional Poverty Index Indicators'],
                          style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
     
-    content_result = html.Div([],className="analysis_content")
+    
+    df1 = pd.read_csv("Data/State_Factors_Embeding.csv")
+    df2 = pd.read_csv("Data/Final_Processed.csv")
+    df = df1.merge(df2,on="State",how="inner")
+    df["FA_Cluster"] = df["FA_Cluster"].apply(lambda x : str(x))
+
+    fig_cluster = px.scatter(df, x="Factor-1", y="Factor-2",color="FA_Cluster",
+                            hover_data=["State"],size="MPI Index")
+    fig_cluster.update_layout(title={'text': "<b>State Clusters Based on MPI Indicators</b>",'y':1.0,'x':0.51, 
+                              'xanchor': 'center','yanchor': 'top'},
+                      margin=dict(l=0, r=0, t=25, b=0),height=400,width=650,showlegend=False)
+    fig_cluster = dcc.Graph(figure=fig_cluster)  
+    fig_cluster_div = html.Div([fig_cluster])
 
     heading1 = html.Div([html.H4(['Motivation'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
     content1 = html.Div([html.P("In our analysis of data on poverty in different states, we found that\
@@ -37,7 +49,7 @@ def analysisLayout():
 
     
     df = pd.read_csv("Data/Final_Processed.csv")
-    df = df[["State",'Illiterate population (%)', 'Deprived_Cooking_Fuel (%)','Deprived_Sanitisation (%)', 'Deprived_Drinking_Water (%)',
+    df = df[['Illiterate population (%)', 'Deprived_Cooking_Fuel (%)','Deprived_Sanitisation (%)', 'Deprived_Drinking_Water (%)',
          'Deprived_Electricity (%)', 'Deprived_House (%)', 'Deprived_Assets (%)','Infant Mortality Rate (%)', 'Attendance Ratio',
          'Adults BMI Below Normal']]
     corr = df.corr()
@@ -195,7 +207,7 @@ def analysisLayout():
                                  className="analysis_content")
 
 
-    layout = html.Div([ heading_result,content_result,heading1,content1,correlation_graph_div,
+    layout = html.Div([ heading_result,fig_cluster_div ,heading1,content1,correlation_graph_div,
                         heading2,content2,heading3,subheading3,content3,
                         subheading4,content4,heading5,content5,heading6,content6])
 
