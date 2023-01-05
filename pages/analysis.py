@@ -33,7 +33,25 @@ def analysisLayout():
                                 poverty in those areas. For instance, our analysis found that Bihar, \
                                 Uttar Pradesh, Punjab, and Haryana are all struggling with the same set of \
                                 indicators, so similar policy improvements could be implemented in those \
-                                states.")],className="analysis_content")    
+                                states.")],className="analysis_content")  
+
+    
+    df = pd.read_csv("Data/Final_Processed.csv")
+    df = df[["State",'Illiterate population (%)', 'Deprived_Cooking_Fuel (%)','Deprived_Sanitisation (%)', 'Deprived_Drinking_Water (%)',
+         'Deprived_Electricity (%)', 'Deprived_House (%)', 'Deprived_Assets (%)','Infant Mortality Rate (%)', 'Attendance Ratio',
+         'Adults BMI Below Normal']]
+    corr = df.corr()
+    mask = np.tri(*corr.shape, k=0)
+    corr_masked = np.ma.array(corr, mask=mask)
+    fig_corr = go.Figure(data=go.Heatmap(z=(corr.values)*mask,x=corr.columns,y=corr.columns,text=(corr.values)*mask,texttemplate='%{text:.2f}',
+                                colorscale="rdbu"))
+    
+    fig_corr.update_layout(title={'text': "<b>Correlation Between Contributions By Indicators</b>",'y':1.0,'x':0.50, 
+                              'xanchor': 'center','yanchor': 'top'},
+                           margin=dict(l=0, r=0, t=25, b=0))
+    
+    correlation_graph = dcc.Graph(figure=fig_corr)  
+    correlation_graph_div = html.Div([correlation_graph])
 
     heading2 = html.Div([html.H4(['Factor Analysis'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
     content2 = html.Div([html.P("Factor analysis is a statistical method used to identify underlying \
@@ -62,15 +80,28 @@ def analysisLayout():
     subheading4 = html.Div([html.H4(['Identifying Number of Factors'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_subheading")
     
     
-    img4 = html.Img(src="assets/num_factors.PNG",
-                   style={"display":"inline-block","width":"350px","height":"250px","border-radius":"25px"})
+    #img4 = html.Img(src="assets/num_factors.PNG",
+    #               style={"display":"inline-block","width":"350px","height":"250px","border-radius":"25px"})
+
+    df = pd.read_csv("Data/Num_Factors_Eigen_Values.csv")
+    y = list(df["Eigen Value"].values)
+    x = list(df["Num of Factors"].values)
+    fig4 = px.line(df,x="Num of Factors", y="Eigen Value",markers=True)
+    fig4.update_layout(title={'text': "<b>Number of Factors Scree Plot</b>",'y':1.0,'x':0.51, 
+                              'xanchor': 'center','yanchor': 'top'},
+                      margin=dict(l=0, r=0, t=25, b=0),height=300,width=300)
+    fig4.add_hline(y=1, line_width=1, line_dash="dash", line_color="red")
+    graph_figure_4 = dcc.Graph(figure=fig4)  
+    graph_div_4 = html.Div([graph_figure_4],
+                           style={"display":"inline-block","width":"350px","border-radius":"25px"})
+    
     content4 = html.Div([html.P("To identify the number of factors that contribute to the covariance in\
                                  the data, we used Eigenvalues. These values indicate the amount of \
                                  variance explained by each factor. In our analysis, we only included \
                                  factors that had Eigenvalues greater than 1, as these factors explain \
                                  more variance than a single indicator. As shown in the figure, there \
                                  are two factors that have Eigenvalues greater than 1. Therefore, we \
-                                 selected these two factors for our analysis."),img4],
+                                 selected these two factors for our analysis."),graph_div_4],
                                  className="analysis_content",
                                  id="analysis_num_factors")
 
@@ -95,11 +126,45 @@ def analysisLayout():
 
     heading6 = html.Div([html.H4(['Clustering With Factors'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
     
+    df = pd.read_csv("Data/Num_Cluster_Distortion_Score.csv")
+    fig6 = px.line(df,x="Num of Clusters", y="Distortion Score",markers=True)
+    fig6.update_layout(title={'text': "<b>Number of Clusters Scree Plot</b>",'y':1.0,'x':0.50, 
+                              'xanchor': 'center','yanchor': 'top'},
+                      margin=dict(l=0, r=0, t=25, b=0),height=450,width=550)
+    fig6.add_vline(x=3, line_width=1, line_dash="dash", line_color="red")
+    graph_figure_6 = dcc.Graph(figure=fig6)  
+    graph_div_6 = html.Div([graph_figure_6],
+                           style={"display":"inline-block","width":"50%","height":"350px","border-radius":"25px"})
+
+    df = pd.read_csv("Data/Silhouette_Score.csv")
+
+    # first sort by silhouete score
+    df = df.sort_values("Silhouette Score").reset_index().drop(columns="index")
+    df["Labels"] = df["Labels"].apply(lambda x : str(x))
+    # now grouby by labels so that similary groups score are plotted together.
+    df1 = pd.DataFrame()
+    for i,j in df.groupby("Labels"):
+        df1 = pd.concat([df1,j],axis=0)
     
-    img6_1 = html.Img(src="assets/distortion_score.PNG",
-                   style={"display":"inline-block","width":"50%","height":"350px","border-radius":"25px"})
-    img6_2 = html.Img(src="assets/shillhoute_score.PNG",
-                   style={"display":"inline-block","width":"50%","height":"350px","border-radius":"25px"})
+    df1 = df1.reset_index().drop(columns="index")
+    df = df1.copy()
+    fig6_1 = px.bar(df, x='Silhouette Score', color="Labels")
+    fig6_1.update_layout(showlegend=False)
+    fig6_1.update_layout(title={'text': "<b>Silhouette Score</b>",'y':1.0,'x':0.52, 
+                              'xanchor': 'center','yanchor': 'top'},
+                         margin=dict(l=0, r=0, t=25, b=0),height=450,width=550)
+    fig6_1.add_vline(x=0.48, line_width=1, line_dash="dash", line_color="black")               
+    graph_figure_6_1 = dcc.Graph(figure=fig6_1)  
+    graph_div_6_1 = html.Div([graph_figure_6_1],
+                           style={"display":"inline-block","width":"50%","height":"350px","border-radius":"25px"})
+
+    
+    
+    #img6_1 = html.Img(src="assets/distortion_score.PNG",
+    #               style={"display":"inline-block","width":"50%","height":"350px","border-radius":"25px"})
+    #img6_2 = html.Img(src="assets/shillhoute_score.PNG",
+    #               style={"display":"inline-block","width":"50%","height":"350px","border-radius":"25px"})
+
     
     
     content6 = html.Div([html.P("This section describes how clustering analysis was performed using KMeans \
@@ -126,12 +191,13 @@ def analysisLayout():
                                  the two identified latent factors, and obtained a silhouette score of \
                                  0.48. The resulting clusters and silhouette score provide valuable \
                                  insights into the patterns and relationships within the data."),
-                                 img6_1,img6_2],
+                                 graph_div_6,graph_div_6_1],
                                  className="analysis_content")
 
 
-    layout = html.Div([ heading_result,content_result,heading1,content1,heading2,content2,heading3,subheading3,content3,
-                       subheading4,content4,heading5,content5,heading6,content6])
+    layout = html.Div([ heading_result,content_result,heading1,content1,correlation_graph_div,
+                        heading2,content2,heading3,subheading3,content3,
+                        subheading4,content4,heading5,content5,heading6,content6])
 
     return layout
 
