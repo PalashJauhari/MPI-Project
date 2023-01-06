@@ -1,5 +1,5 @@
 import dash
-from dash import html, dcc, callback, Input, Output
+from dash import html, dcc, callback, Input, Output,dash_table
 import dash_bootstrap_components as dbc
 from data import *
 import plotly.graph_objects as go
@@ -194,21 +194,33 @@ def analysisLayout():
     heading5 = html.Div([html.H4(['Factor Analysis Results'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
     content5 = html.Div([html.P("The results of our factor analysis model showed that 60% of the variation\
                                  in the original dataset could be explained by two factors. These factors,\
-                                 labeled as factor-1 and factor-2, had significant influence on several \
+                                 labeled as Factor-1 and Factor-2, had significant influence on several \
                                  variables in the dataset. For example, variables such as Deprived Cooking \
-                                 Fuel, Deprived House, and Deprived Assets had high loading on factor-1, \
+                                 Fuel, Deprived House, and Deprived Assets had high loading on Factor-1, \
                                  meaning they were largely influenced by this factor. On the other hand, \
                                  variables such as Deprived Drinking Water, Deprived Electricity, Infant \
-                                 Mortality Rate, and Nutrition had high loading on factor-2, indicating \
+                                 Mortality Rate, and Nutrition had high loading on Factor-2, indicating \
                                  they were primarily associated with this factor. Other variables, such as\
                                  Illiteracy, Deprived Sanitation, and Attendance Ratio, had loading on both\
                                  factors, suggesting they were impacted by both.The significance of this\
-                                 analysis is that if we focus on improving factor-1, we could expect to \
+                                 analysis is that if we focus on improving Factor-1, we could expect to \
                                  see improvements in indicators like Cooking Fuel, Housing, and Assets. \
-                                 Similarly, working to improve factor-2 could lead to positive changes \
+                                 Similarly, working to improve Factor-2 could lead to positive changes \
                                  in indicators like Drinking Water, Electricity, Infant Mortality Rate, \
                                 and Nutrition.")],className="analysis_content")
-    #table5
+    
+    
+    df = pd.read_csv("Data/Variable_Variance_Explained_By_Factor.csv")
+    data_table = dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns],
+                                       fixed_rows={'headers': True},
+                                       style_table={'overflowX': 'auto'},
+                                       style_cell={'height': 'auto','minWidth': '180px', 
+                                                    'width': '180px', 'maxWidth': '180px',
+                                                    'whiteSpace': 'normal',
+                                                    'fontSize':15, 'font-family':'sans-serif',
+                                                    "text-align":"center"},
+                                      style_header={'backgroundColor': 'rgb(30, 30, 30)',
+                                                    'color': 'white',"font-weight":"bolder"})
 
     heading6 = html.Div([html.H4(['Clustering With Factors'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
     
@@ -276,7 +288,7 @@ def analysisLayout():
 
     layout = html.Div([ heading_result,fig_cluster_div,heading1,content1,correlation_graph_div,
                         heading2,content2,heading3,subheading3,content3,
-                        subheading4,content4,heading5,content5,heading6,content6])
+                        subheading4,content4,heading5,content5,data_table,heading6,content6])
 
     return layout
 

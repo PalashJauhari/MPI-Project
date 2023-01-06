@@ -1,11 +1,11 @@
-,Factor-1 (%),Factor-2 (%)
-Illiterate population (%),78.6,21.4
-Deprived_Cooking_Fuel (%),92.5,7.5
-Deprived_Sanitisation (%),64.2,35.8
-Deprived_Drinking_Water (%),20.8,79.2
-Deprived_Electricity (%),0.3,99.7
-Deprived_House (%),92.0,8.0
-Deprived_Assets (%),99.8,0.2
-Infant Mortality Rate (%),22.9,77.1
+Indicator,Factor-1 (%),Factor-2 (%)
+Deprived Assets,99.8,0.2
+Deprived Cooking Fuel,92.5,7.5
+Deprived House,92,8
+Illiteracy,78.6,21.4
 Attendance Ratio,66.9,33.1
-Adults BMI Below Normal,0.0,100.0
+Deprived Sanitisation,64.2,35.8
+Infant Mortality Rate,22.9,77.1
+Deprived Drinking Water,20.8,79.2
+Deprived Electricity,0.3,99.7
+Nutrition,0,100
