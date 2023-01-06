@@ -24,13 +24,13 @@ def analysisLayout():
                             hover_data=["State"],size="MPI Index")
     fig_cluster.update_layout(title={'text': "<b>State Clusters Based on MPI Indicators</b>",'y':1.0,'x':0.51, 
                               'xanchor': 'center','yanchor': 'top'},
-                      margin=dict(l=0, r=0, t=25, b=0),height=400,width=580,showlegend=False)
+                      margin=dict(l=0, r=0, t=25, b=0),height=400,showlegend=False)#width=580
     fig_cluster = dcc.Graph(figure=fig_cluster)  
     fig_cluster_div = html.Div([fig_cluster],id="analysis_state_clusters")
 
     # plot bar-chart comparisons
-    pct_contribution_colnames = [i for i in df.columns if "Pct" in i]
-    colnames = [i for i in df.columns if "Pct" in i]
+    contribution_colnames = [i for i in df.columns if "Contribution" in i]
+    colnames = [i for i in df.columns if "Contribution" in i]
     colnames.append("State")
     colnames.append("MPI Index")
     colnames.append("FA_Cluster")
@@ -38,40 +38,44 @@ def analysisLayout():
 
     input_state = "Bihar"
     df_state = df[df["State"]==input_state]
-    pct_contribution_state = [df_state[i].values[0] for i in pct_contribution_colnames]
+    contribution_state = [df_state[i].values[0] for i in contribution_colnames]
 
     state_cluster = df["FA_Cluster"].values[0]
     df_cluster = df[df["FA_Cluster"]==state_cluster]
     df_cluster = df_cluster.mean(axis=0)
     df_cluster = df_cluster.T
-    pct_contribution_cluster = [df_cluster[i] for i in pct_contribution_colnames]
+    contribution_cluster = [df_cluster[i] for i in contribution_colnames]
 
 
     df_india = df.copy()
     df_india = df_india.mean(axis=0)
     df_india = df_india.T
-    pct_contribution_india = [df_india[i] for i in pct_contribution_colnames]
+    contribution_india = [df_india[i] for i in contribution_colnames]
 
-    all_count = len(pct_contribution_colnames)
-    pct_all = pct_contribution_state+pct_contribution_cluster+pct_contribution_india
+    all_count = len(contribution_colnames)
+    contribution_all = contribution_state + contribution_cluster + contribution_india
     type_all = [input_state]*all_count+["Cluster_"+state_cluster]*all_count+["India"]*all_count
-    
-    
-    pct_contribution_colnames_display = [i.replace("Pct_","") for i in pct_contribution_colnames]
-    dff = pd.DataFrame({"% Contribution in MPI":pct_all,"Indicator":pct_contribution_colnames_display*3,
+
+    # change name to display on UI
+    contribution_colnames_display = [i.replace("Contribution_","") for i in contribution_colnames]
+    dff = pd.DataFrame({"Contribution in MPI":contribution_all,"Indicator":contribution_colnames_display*3,
                        "Type":type_all})
+
+    dff = dff.sort_values("Contribution in MPI").reset_index().drop(columns="index")
     
     
-    fig_compare = px.bar(dff, x="Indicator", y="% Contribution in MPI", 
-                 color="Type", barmode="group")
+    fig_compare = px.bar(dff, y="Indicator", x="Contribution in MPI", 
+                         color="Type", barmode="group",orientation='h')
 
     fig_compare.update_layout(title={'text': "<b>Comparison</b>",'y':1.0,'x':0.51, 
-                              'xanchor': 'center','yanchor': 'top'},
-                            margin=dict(l=0, r=0, t=25, b=0),height=400,width=700,showlegend=False)
+                                     'xanchor': 'center','yanchor': 'top'},
+                              margin=dict(l=0, r=0, t=25, b=0),height=1000,
+                              legend=dict(x=0,y=1.025,orientation="h",bgcolor='rgba(255, 255, 255, 0)'))
+    
     fig_compare = dcc.Graph(figure=fig_compare)  
     fig_compare_div = html.Div([fig_compare],id="analysis_state_compare")
-    
 
+    fig_cluster_final = html.Div([fig_cluster_div,fig_compare_div],id="analysis_cluster_final")
     
     heading1 = html.Div([html.H4(['Motivation'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
     content1 = html.Div([html.P("In our analysis of data on poverty in different states, we found that\
@@ -138,9 +142,6 @@ def analysisLayout():
     subheading4 = html.Div([html.H4(['Identifying Number of Factors'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_subheading")
     
     
-    #img4 = html.Img(src="assets/num_factors.PNG",
-    #               style={"display":"inline-block","width":"350px","height":"250px","border-radius":"25px"})
-
     df = pd.read_csv("Data/Num_Factors_Eigen_Values.csv")
     y = list(df["Eigen Value"].values)
     x = list(df["Num of Factors"].values)
@@ -218,13 +219,6 @@ def analysisLayout():
 
     
     
-    #img6_1 = html.Img(src="assets/distortion_score.PNG",
-    #               style={"display":"inline-block","width":"50%","height":"350px","border-radius":"25px"})
-    #img6_2 = html.Img(src="assets/shillhoute_score.PNG",
-    #               style={"display":"inline-block","width":"50%","height":"350px","border-radius":"25px"})
-
-    
-    
     content6 = html.Div([html.P("This section describes how clustering analysis was performed using KMeans \
                                  Clustering. Clustering is a technique for dividing a dataset into groups \
                                  (also known as clusters) of similar data points. The motivation of \
@@ -253,7 +247,7 @@ def analysisLayout():
                                  className="analysis_content")
 
 
-    layout = html.Div([ heading_result,fig_cluster_div,fig_compare_div,heading1,content1,correlation_graph_div,
+    layout = html.Div([ heading_result,fig_cluster_final,heading1,content1,correlation_graph_div,
                         heading2,content2,heading3,subheading3,content3,
                         subheading4,content4,heading5,content5,heading6,content6])
 

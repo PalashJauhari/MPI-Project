@@ -36,10 +36,20 @@
 }
 
 #analysis_state_compare{
-
-    display: inline-flex;
+    display: inline-block;
+    height: 400px;
+    overflow-y: scroll;
+    overflow-x: scroll;
 }
 
 #analysis_state_clusters{
-    display: inline-flex;
+    display: inline-block;
+    overflow-y: scroll;
+}
+
+#analysis_cluster_final{
+    display: flex;
+    overflow-y: scroll;
+    flex-direction: row;
+
 }
