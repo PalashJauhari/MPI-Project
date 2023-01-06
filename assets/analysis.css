@@ -12,7 +12,7 @@
     font-family: "Calibri";
     font-size: 20px;
     border-radius: 6px;
-    background-color: #8d8d91;
+    background-color: #dedefb;
     font-weight: bold;
 }
 .analysis_content{
@@ -39,12 +39,14 @@
     display: inline-block;
     height: 400px;
     overflow-y: scroll;
-    overflow-x: scroll;
+    width:60%;
 }
 
 #analysis_state_clusters{
     display: inline-block;
-    overflow-y: scroll;
+    width: 80%;
+    margin-right: 50px;
+    margin-left: 150px;
 }
 
 #analysis_cluster_final{

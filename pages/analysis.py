@@ -19,63 +19,90 @@ def analysisLayout():
     df = df1.merge(df2,on="State",how="inner")
     df["FA_Cluster"] = df["FA_Cluster"].apply(lambda x : str(x))
 
+    #Normalise MPI Index so that difference in size is visibile
+    df["MPI Index Normalised"] = (df["MPI Index"] - np.min(df["MPI Index"]))/(np.max(df["MPI Index"])-np.min(df["MPI Index"]))
+
+    #df['text'] = df['State'] + '<br>' + 'MPI Index: ' + df['MPI Index'].astype(str)
+
+    
+    
     # plot clusters
     fig_cluster = px.scatter(df, x="Factor-1", y="Factor-2",color="FA_Cluster",
-                            hover_data=["State"],size="MPI Index")
-    fig_cluster.update_layout(title={'text': "<b>State Clusters Based on MPI Indicators</b>",'y':1.0,'x':0.51, 
-                              'xanchor': 'center','yanchor': 'top'},
-                      margin=dict(l=0, r=0, t=25, b=0),height=400,showlegend=False)#width=580
+                             hover_data={'FA_Cluster':False,'MPI Index Normalised':False,
+                                         "Factor-1":False,"Factor-2":False,
+                                         "State":True , "MPI Index":':.4f'},
+                             size="MPI Index Normalised")
+
+    fig_cluster.update_layout(title={'text': "<b>State Clusters Based on MPI Indicators</b>",
+                                    'y':1.0,'x':0.51, 'xanchor': 'center','yanchor': 'top'},
+                              margin=dict(l=0, r=0, t=25, b=0),height=400,
+                              xaxis=dict(title=dict(font=dict(size=16, family='Arial'))),
+                              yaxis=dict(title=dict(font=dict(size=16, family='Arial'))))
+    
     fig_cluster = dcc.Graph(figure=fig_cluster)  
     fig_cluster_div = html.Div([fig_cluster],id="analysis_state_clusters")
 
     # plot bar-chart comparisons
-    contribution_colnames = [i for i in df.columns if "Contribution" in i]
-    colnames = [i for i in df.columns if "Contribution" in i]
-    colnames.append("State")
-    colnames.append("MPI Index")
-    colnames.append("FA_Cluster")
-    df = df[colnames]
+    #contribution_colnames = [i for i in df.columns if "Contribution" in i]
+    #colnames = [i for i in df.columns if "Contribution" in i]
+    #colnames.append("State")
+    #colnames.append("MPI Index")
+    #colnames.append("FA_Cluster")
+    #df = df[colnames]
 
-    input_state = "Bihar"
-    df_state = df[df["State"]==input_state]
-    contribution_state = [df_state[i].values[0] for i in contribution_colnames]
+    #input_state = "Kerala"
+    #df_state = df[df["State"]==input_state]
+    #contribution_state = [df_state[i].values[0] for i in contribution_colnames]
 
-    state_cluster = df["FA_Cluster"].values[0]
-    df_cluster = df[df["FA_Cluster"]==state_cluster]
-    df_cluster = df_cluster.mean(axis=0)
-    df_cluster = df_cluster.T
-    contribution_cluster = [df_cluster[i] for i in contribution_colnames]
+    #state_cluster = "0"
+    #df_cluster = df[df["FA_Cluster"]==state_cluster]
+    #df_cluster = df_cluster.mean(axis=0)
+    #df_cluster = df_cluster.T
+    #contribution_cluster_0 = [df_cluster[i] for i in contribution_colnames]
 
+    #state_cluster = "1"
+    #df_cluster = df[df["FA_Cluster"]==state_cluster]
+    #df_cluster = df_cluster.mean(axis=0)
+    #df_cluster = df_cluster.T
+    #contribution_cluster_1 = [df_cluster[i] for i in contribution_colnames]
 
-    df_india = df.copy()
-    df_india = df_india.mean(axis=0)
-    df_india = df_india.T
-    contribution_india = [df_india[i] for i in contribution_colnames]
+    #state_cluster = "2"
+    #df_cluster = df[df["FA_Cluster"]==state_cluster]
+    #df_cluster = df_cluster.mean(axis=0)
+    #df_cluster = df_cluster.T
+    #contribution_cluster_2 = [df_cluster[i] for i in contribution_colnames]
 
-    all_count = len(contribution_colnames)
-    contribution_all = contribution_state + contribution_cluster + contribution_india
-    type_all = [input_state]*all_count+["Cluster_"+state_cluster]*all_count+["India"]*all_count
+    #df_india = df.copy()
+    #df_india = df_india.mean(axis=0)
+    #df_india = df_india.T
+    #contribution_india = [df_india[i] for i in contribution_colnames]
+
+    #all_count = len(contribution_colnames)
+    #contribution_all = contribution_state + contribution_cluster_0 + contribution_cluster_1 + \
+    #                   contribution_cluster_2
+    #type_all = [input_state]*all_count+["Cluster_0"]*all_count+["Cluster_1"]*all_count+\
+    #           ["Cluster_2"]*all_count
 
     # change name to display on UI
-    contribution_colnames_display = [i.replace("Contribution_","") for i in contribution_colnames]
-    dff = pd.DataFrame({"Contribution in MPI":contribution_all,"Indicator":contribution_colnames_display*3,
-                       "Type":type_all})
-
-    dff = dff.sort_values("Contribution in MPI").reset_index().drop(columns="index")
+    #contribution_colnames_display = [i.replace("Contribution_","") for i in contribution_colnames]
+    #dff = pd.DataFrame({"Contribution in MPI":contribution_all,"Indicator":contribution_colnames_display*4,
+    #                   "Type":type_all})
+    #dff = dff.sort_values("Contribution in MPI").reset_index().drop(columns="index")
     
     
-    fig_compare = px.bar(dff, y="Indicator", x="Contribution in MPI", 
-                         color="Type", barmode="group",orientation='h')
+    #fig_compare = px.bar(dff, y="Indicator", x="Contribution in MPI", 
+    #                     color="Type",color_discrete_sequence=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'], 
+    #                     barmode="group",orientation='h')
 
-    fig_compare.update_layout(title={'text': "<b>Comparison</b>",'y':1.0,'x':0.51, 
-                                     'xanchor': 'center','yanchor': 'top'},
-                              margin=dict(l=0, r=0, t=25, b=0),height=1000,
-                              legend=dict(x=0,y=1.025,orientation="h",bgcolor='rgba(255, 255, 255, 0)'))
+    #fig_compare.update_layout(title={'text': "<b>Comparison</b>",'y':1.0,'x':0.51, 
+    #                                 'xanchor': 'center','yanchor': 'top'},
+    #                          margin=dict(l=0, r=0, t=25, b=0),height=1000,
+    #                          legend=dict(x=0,y=1.025,orientation="h",bgcolor='rgba(255, 255, 255, 0)'))
     
-    fig_compare = dcc.Graph(figure=fig_compare)  
-    fig_compare_div = html.Div([fig_compare],id="analysis_state_compare")
+    #fig_compare = dcc.Graph(figure=fig_compare)  
+    #fig_compare_div = html.Div([fig_compare],id="analysis_state_compare")
 
-    fig_cluster_final = html.Div([fig_cluster_div,fig_compare_div],id="analysis_cluster_final")
+    #fig_cluster_final = html.Div([fig_cluster_div,fig_compare_div],id="analysis_cluster_final")
     
     heading1 = html.Div([html.H4(['Motivation'],style={"font-weight":"bold","margin-left":"5px"})],className="analysis_heading")
     content1 = html.Div([html.P("In our analysis of data on poverty in different states, we found that\
@@ -93,7 +120,7 @@ def analysisLayout():
                                 on overall MPI scores. By identifying which states have similar contributing\
                                 indicators, we can make more targeted policy recommendations to address \
                                 poverty in those areas. For instance, our analysis found that Bihar, \
-                                Uttar Pradesh, Punjab, and Haryana are all struggling with the same set of \
+                                Odisha,Assam, and Jharkhand are all struggling with the same set of \
                                 indicators, so similar policy improvements could be implemented in those \
                                 states.")],className="analysis_content")  
 
@@ -247,7 +274,7 @@ def analysisLayout():
                                  className="analysis_content")
 
 
-    layout = html.Div([ heading_result,fig_cluster_final,heading1,content1,correlation_graph_div,
+    layout = html.Div([ heading_result,fig_cluster_div,heading1,content1,correlation_graph_div,
                         heading2,content2,heading3,subheading3,content3,
                         subheading4,content4,heading5,content5,heading6,content6])
 
