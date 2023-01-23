@@ -7,6 +7,8 @@ def extractData():
 
     # 100 is divided because BMI columns are in percentage , however other columns are fraction
     df["Adults BMI Below Normal"]= (df["Men BMI Below Normal (%)"] + df["Women BMI Below Normal (%)"])/(2*100.0)
+    # for Infant Mortality Rate (%) 10 is additionaly divided beacuse in this columns count is given for per 1000 child born.
+    df["Infant Mortality Rate (%)"] = df["Infant Mortality Rate (%)"]/10.0
     df["Infant Mortality Rate (%)"] = df["Infant Mortality Rate (%)"]/100.0
     df = df.drop(columns=["Men BMI Below Normal (%)","Women BMI Below Normal (%)"])
 
