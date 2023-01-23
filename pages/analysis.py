@@ -17,7 +17,8 @@ def analysisLayout():
     df1 = pd.read_csv("Data/State_Factors_Embeding.csv")
     df2 = pd.read_csv("Data/Final_Processed.csv")
     df = df1.merge(df2,on="State",how="inner")
-    df["FA_Cluster"] = df["FA_Cluster"].apply(lambda x : str(x))
+    #df["FA_Cluster"] = df["FA_Cluster"].apply(lambda x : str(x))
+    df["State Cluster"] = df["State Cluster"].apply(lambda x : str(x))
 
     #Normalise MPI Index so that difference in size is visibile
     df["MPI Index Normalised"] = (df["MPI Index"] - np.min(df["MPI Index"]))/(np.max(df["MPI Index"])-np.min(df["MPI Index"]))
@@ -27,8 +28,8 @@ def analysisLayout():
     
     
     # plot clusters
-    fig_cluster = px.scatter(df, x="Factor-1", y="Factor-2",color="FA_Cluster",
-                             hover_data={'FA_Cluster':False,'MPI Index Normalised':False,
+    fig_cluster = px.scatter(df, x="Factor-1", y="Factor-2",color="State Cluster",
+                             hover_data={'State Cluster':False,'MPI Index Normalised':False,
                                          "Factor-1":False,"Factor-2":False,
                                          "State":True , "MPI Index":':.4f'},
                              size="MPI Index Normalised")
