@@ -35,7 +35,7 @@ def get_metric_rank(dff,statename):
         
         dff1 = dff1.reset_index().drop(columns="index")  
         dff_state = dff1[dff1["State"]==statename]
-        rank_dict[indicator_dict[i.replace("Orignal_","Contribution_")]] = [np.round(dff_state[i].values[0],1),dff_state.index[0] + 1]
+        rank_dict[indicator_dict[i.replace("Orignal_","Contribution_")]] = [np.round(dff_state[i].values[0],2),dff_state.index[0] + 1]
     
     return rank_dict 
 
